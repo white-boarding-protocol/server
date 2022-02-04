@@ -7,6 +7,15 @@ class Session:
     BUFFER_SIZE = 4096
 
     def __init__(self, **kwargs):
+        """
+        Creates a net socket and then wraps it around tls for security
+        Args:
+            ip_address (string): Ip to be bound to 
+            port_number (int): port to be bound to
+            context (sslContext): security context for tls, passed down from encryption layer.
+        Returns:
+            new session object
+        """        
         self._ip_address = kwargs.get('ip_address')
         self._port_number = kwargs.get('port_number')
         self._ssl_context = kwargs.get('context')

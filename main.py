@@ -4,10 +4,11 @@ import ssl
 
 if __name__ == "__main__":
     
-    # TODO: Later to be replaced with enc layer function.
+    # TODO: Later to be replaced with enc layer function
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain('./cert/cert.pem', './cert/key.pem')
 
+    # Session layer
     server = Session(ip_address= "localhost", port_number= 5555, context= context)
 
     # TEST
