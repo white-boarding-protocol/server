@@ -1,6 +1,5 @@
-from ipaddress import ip_address
-from session.session import Session
 import ssl
+from session.server import Threaded_Server
 
 if __name__ == "__main__":
     
@@ -9,11 +8,13 @@ if __name__ == "__main__":
     context.load_cert_chain('./cert/cert.pem', './cert/key.pem')
 
     # Session layer
-    server = Session(ip_address= "localhost", port_number= 5555, context= context)
+    server = Threaded_Server(ip_address= "localhost", port_number= 5555, context= context)
+
+    server.listen_for_clients()
 
     # TEST
-    client = server.wait_for_connection()
-    server.transfer_data("hello client!", client)
-    print("From client: "+ server.recv_data(client).decode())
-    server.close_client_connection(client)
-    server.close_server()
+    # client = server.wait_for_connection()
+    # server.transfer_data("hello client!", client)
+    # print("From client: "+ server.recv_data(client).decode())
+    # server.close_client_connection(client)
+    # server.close_server()

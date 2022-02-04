@@ -33,58 +33,84 @@ class Session:
         Adds the clients to the dict and returns their address.
 
         Returns:
-            address: returns the client address (ip_address, port_number). 
+            client: {"client_address": address, "client_socket": client_socket}
         """
-        print("INFO: Server is listening for a connection")        
-        self._server_ssl_socket.listen()
-        (client_socket, address) = self._server_ssl_socket.accept()
-        self.clients_dict[address]= client_socket
-        print("INFO: Added client: "+ str(address))
-        return address
+        try:
+            print("INFO: Server is listening for a connection")        
+            self._server_ssl_socket.listen()
+            (client_socket, address) = self._server_ssl_socket.accept()
+            self.clients_dict[address]= client_socket
+            print("INFO: Added client: "+ str(address))
+            return {"client_address": address, "client_socket": client_socket}
+        except:
+            self._server_ssl_socket.close()
+            return
+        
 
 
-    def transfer_data(self, data, address):
+    def transfer_data(self, data, client):
         """
-        Transfers data to the specified client.
+        Transfers data to the specified client
 
         Args:
-            data ( type ): The data to be sent.
-            address (tuple): client address (ip_address, port_number).
+            data ( type ): The data to be sent
+            client (SSLSocket): client socket
 
         Returns:
-            int : amout of bytes sent to the client.
+            int : amout of bytes sent to the client
         """        
-        return self.clients_dict.get(address).send(str.encode(data))
+        return client.send(str.encode(data))
 
-    def recv_data(self, address):
+    def recv_data(self, client):
         """
-        Receives data from the specified client.
+        Receives data from the specified client
 
         Args:
-            address (tuple): client address (ip_address, port_number).
+            client (SSLSocket): client socket
 
         Returns:
-            byte object : represents the data received.
+            byte object : represents the data received
         """  
-        return self.clients_dict.get(address).recv(self.BUFFER_SIZE)
+        return client.recv(self.BUFFER_SIZE)
 
-    def close_client_connection(self, address):
+    def close_client_connection(self, client):
         """
-        Closes the connection for the specified client.
+        Closes the connection for the specified client
 
         Args:
-            address (tuple): The client to close the connection to.
+            client: {"client_address": address, "client_socket": client_socket}
 
         Returns:
-            None.
-        """        
-        return self.clients_dict.get(address).close()
+            None
+        """
+        # Remove client.
+        self.clients_dict.pop(client.get("client_address"))
+        return client.get("client_socket").close()
 
     def close_server(self):
         """
-        Closes the server socket.
+        Closes the server socket
 
         Returns:
-            None.
-        """        
+            None
+        """
+        self.clients_dict.clear()
         return self._server_ssl_socket.close()
+
+    def get_clients_addresses(self):
+        """
+        Returns all client addresses stored in session
+
+        Returns:
+            [list]: clients addresses
+        """        
+        return self.clients_dict.keys()
+
+    def get_clients_sockets(self):
+        """
+        Returns all client SSLSockets stored
+
+        Returns:
+            [SSLSocket]: clients secure sockets
+        """        
+        return self.clients_dict.items()
