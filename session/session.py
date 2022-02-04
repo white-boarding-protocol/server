@@ -9,6 +9,7 @@ class Session:
     def __init__(self, **kwargs):
         """
         Creates a net socket and then wraps it around tls for security
+        
         Args:
             ip_address (string): Ip to be bound to 
             port_number (int): port to be bound to
