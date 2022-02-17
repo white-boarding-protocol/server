@@ -1,16 +1,28 @@
 import ssl
 import asyncio
-import session.session
+
+from session.session import Session
+
+
+async def handler(websocket):
+    print("connected")
+    await websocket.send("slm")
+    print("sent")
+    await websocket.close()
+    message = await websocket.recv()
+    print(message)
+    print("close")
+
 
 if __name__ == "__main__":
-    
     # TODO: Later to be replaced with enc layer function
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain('./cert/cert.pem', './cert/key.pem')
 
     # Session layer
 
-    asyncio.run(session(ip_address= "localhost", port_number= 5555, context= context))
+    session = Session(ip_address="127.0.0.1", port_number=5555, context=context, handler=handler)
+    asyncio.run(session.start_server())
 
     # server = Threaded_Server(ip_address= "localhost", port_number= 5555, context= context)
 
