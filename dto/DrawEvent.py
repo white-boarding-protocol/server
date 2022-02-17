@@ -1,0 +1,10 @@
+from EventConstants import EventType, EventAction
+from Event import Event
+
+
+class DrawEvent(Event):
+
+
+    def __init__(self, action: EventAction):
+        Event.__init__(self, EventType.DRAW, action)
+
