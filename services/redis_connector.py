@@ -4,9 +4,8 @@ import json
 
 class RedisConnector:
 
-    def __init__(self, hostname, port):
-        print('Initiating services...')
-        self.redis = redis.Redis(host=hostname, port=port, db=1)
+    def __init__(self, hostname, port, password=None):
+        self.redis = redis.Redis(host=hostname, port=port, password=password, db=1)
 
     def put(self, key, value):
         json_value = ""
