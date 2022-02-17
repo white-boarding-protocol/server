@@ -1,5 +1,6 @@
 import ssl
-from session.server import Threaded_Server
+import asyncio
+import session.session
 
 if __name__ == "__main__":
     
@@ -8,9 +9,12 @@ if __name__ == "__main__":
     context.load_cert_chain('./cert/cert.pem', './cert/key.pem')
 
     # Session layer
-    server = Threaded_Server(ip_address= "localhost", port_number= 5555, context= context)
 
-    server.listen_for_clients()
+    asyncio.run(session(ip_address= "localhost", port_number= 5555, context= context))
+
+    # server = Threaded_Server(ip_address= "localhost", port_number= 5555, context= context)
+
+    # server.listen_for_clients()
 
     # TEST
     # client = server.wait_for_connection()
