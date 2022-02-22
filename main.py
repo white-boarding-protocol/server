@@ -1,7 +1,7 @@
 import ssl
 import asyncio
 
-from session.session import Session
+from session.session_server import SessionServer
 
 
 async def handler(websocket):
@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     # Session layer
 
-    session = Session(ip_address="127.0.0.1", port_number=5555, context=context, handler=handler)
+    session = SessionServer(ip_address="127.0.0.1", port_number=5555, context=context, handler=handler)
     asyncio.run(session.start_server())
 
     # server = Threaded_Server(ip_address= "localhost", port_number= 5555, context= context)

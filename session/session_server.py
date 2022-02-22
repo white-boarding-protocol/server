@@ -1,12 +1,11 @@
 import asyncio
+import logging
+
 import websockets
 
 
 # Represents the session between a client and this server.
-class Session:
-    clients_dict = {}
-    BUFFER_SIZE = 4096
-
+class SessionServer:
     def __init__(self, **kwargs):
         """
         Creates a websocket with tls and then listens for connections forever.
@@ -24,8 +23,8 @@ class Session:
         self._ip_address = kwargs.get('ip_address')
         self._port_number = kwargs.get('port_number')
         self._handler = kwargs.get('handler')
-        self._logger = kwargs.get('logger')
         self._ssl_context = kwargs.get('context')
+        self._logger = logging.getLogger("Security")
 
     async def start_server(self):
         async with websockets.serve(self._handler, host=self._ip_address, port=self._port_number,
