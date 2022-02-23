@@ -1,8 +1,7 @@
-from events.whiteboard.constants import EventType, EventAction
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 
 
-class DrawWhiteboardEvent(WhiteboardEvent):
+class UndoWhiteboardEvent(WhiteboardEvent):
 
-    def __init__(self):
-        WhiteboardEvent.__init__(self, EventType.UNDO, EventAction.NONE)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)

@@ -1,8 +1,6 @@
-import ssl
-import asyncio
+import json
 
-from events.whiteboard.whiteboard_event import WhiteboardEvent
-from session.session_server import SessionServer
+from events.masterevent import MasterEvent
 
 
 async def handler(websocket):
@@ -16,8 +14,14 @@ async def handler(websocket):
 
 
 if __name__ == "__main__":
-    s = WhiteboardEvent(1)
-    print(s.__class__)
+    data = {
+        "type": 2,
+        "session_id": "1",
+        "user_id": "1",
+        "action": 2
+    }
+    s = MasterEvent.deserialize(json.dumps(data))
+    print(vars(s))
     # # TODO: Later to be replaced with enc layer function
     # context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     # context.load_cert_chain('./cert/cert.pem', './cert/key.pem')
