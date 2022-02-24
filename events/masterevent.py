@@ -4,6 +4,7 @@ from time import time
 import json
 
 from events.constants import EventType, EventAction
+from events.exceptions import PermissionDenied
 
 
 class MasterEvent:
@@ -19,6 +20,16 @@ class MasterEvent:
     @abstractmethod
     def has_perm(self) -> bool:
         pass
+
+    @abstractmethod
+    def handle(self):
+        pass
+
+    def exec(self):
+        if self.has_perm():
+            self.handle()
+        else:
+            raise PermissionDenied()
 
     @staticmethod
     def deserialize(json_data):

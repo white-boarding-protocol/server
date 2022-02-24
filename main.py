@@ -15,13 +15,14 @@ async def handler(websocket):
 
 if __name__ == "__main__":
     data = {
-        "type": 2,
+        "type": 3,
+        "text": "slm",
         "session_id": "1",
         "user_id": "1",
         "action": 2
     }
     s = MasterEvent.deserialize(json.dumps(data))
-    print(vars(s))
+    print(json.dumps(vars(s)))
     # # TODO: Later to be replaced with enc layer function
     # context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     # context.load_cert_chain('./cert/cert.pem', './cert/key.pem')
