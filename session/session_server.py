@@ -24,9 +24,10 @@ class SessionServer:
         self._port_number = kwargs.get('port_number')
         self._handler = kwargs.get('handler')
         self._ssl_context = kwargs.get('context')
-        self._logger = logging.getLogger("Security")
+        self._logger = logging.getLogger("Session")
 
     async def start_server(self):
         async with websockets.serve(self._handler, host=self._ip_address, port=self._port_number,
                                     logger=self._logger, ssl=self._ssl_context):
+            print("server started...")
             await asyncio.Future()  # run forever

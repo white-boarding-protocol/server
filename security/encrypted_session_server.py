@@ -20,6 +20,7 @@ class EncryptedSessionServer:
         if self._ssl_enabled:
             ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
             ssl_context.load_cert_chain(certfile=self._ssl_cert_path, keyfile=self._ssl_key_path)
+            print("context loaded...")
             return ssl_context
         return None
 

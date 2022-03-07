@@ -5,3 +5,4 @@ __pycache__/
 venv/
 .vscode
 cert/key.pem
+config.json
