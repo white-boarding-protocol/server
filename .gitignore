@@ -6,3 +6,4 @@ venv/
 .vscode
 cert/key.pem
 config.json
+*.log

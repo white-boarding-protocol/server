@@ -29,5 +29,4 @@ class SessionServer:
     async def start_server(self):
         async with websockets.serve(self._handler, host=self._ip_address, port=self._port_number,
                                     logger=self._logger, ssl=self._ssl_context):
-            print("server started...")
             await asyncio.Future()  # run forever

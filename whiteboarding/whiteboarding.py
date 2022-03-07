@@ -24,8 +24,9 @@ class Whiteboarding:
             config = json.load(file)
 
         if self.is_config_valid(config):
-            self.logger.info("Config file successfully loaded")
             config['ip_address'] = netifaces.ifaddresses(config.pop('interface')).get(netifaces.AF_INET)[0].get('addr')
+
+            self.logger.info("Config file successfully loaded")
             return config
         else:
             self.logger.error(self.error_message)
