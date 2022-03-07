@@ -19,6 +19,7 @@ class MasterEvent:
             self.time_stamp = time()
 
         self.whiteboarding = Whiteboarding()
+        self.room_users = None
 
     @abstractmethod
     def has_perm(self) -> bool:
@@ -61,3 +62,6 @@ class MasterEvent:
             from events.whiteboard.undo import UndoWhiteboardEvent
             data["action"] = EventAction(data["action"])
             return UndoWhiteboardEvent(**data)
+
+    def redistribute(self):
+        pass

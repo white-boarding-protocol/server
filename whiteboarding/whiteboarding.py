@@ -21,9 +21,7 @@ class Whiteboarding(metaclass=Singleton):
         self.config['handler'] = self.handle_client
         self.session_server = EncryptedSessionServer(**self.config)
         self.redis_connector = RedisConnector("localhost", 6379)
-        self.online_users = {
-            "user_id": 1
-        }
+        self.online_users = {}
 
     def load_config(self):
         with open(self.CONFIG_PATH, "r") as file:
@@ -59,8 +57,9 @@ class Whiteboarding(metaclass=Singleton):
         await self.session_server.start_server()
 
     async def handle_client(self, client_socket):
-        client_join = await client_socket.recv()
-
+        from events.masterevent import MasterEvent
+        client_join_msg = await client_socket.recv()
+        MasterEvent.deserialize(client_join_msg)
         # self.online_users[]
         while True:
             client_msg = await client_socket.recv()
