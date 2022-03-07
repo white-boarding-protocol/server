@@ -5,17 +5,20 @@ import json
 
 from events.constants import EventType, EventAction
 from events.exceptions import PermissionDenied
+from whiteboarding.whiteboarding import Whiteboarding
 
 
 class MasterEvent:
-    def __init__(self, user_id: str, session_id=None, time_stamp=None):
+    def __init__(self, user_id: str, room_id=None, time_stamp=None):
         self.user_id = user_id
-        self.session_id = session_id
+        self.room_id = room_id
 
         if time_stamp:
             self.time_stamp = time_stamp
         else:
             self.time_stamp = time()
+
+        self.whiteboarding = Whiteboarding()
 
     @abstractmethod
     def has_perm(self) -> bool:

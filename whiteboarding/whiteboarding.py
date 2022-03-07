@@ -3,10 +3,12 @@ import logging
 import netifaces
 
 from security.encrypted_session_server import EncryptedSessionServer
+from services.redis_connector import RedisConnector
+from singleton.singleton import Singleton
 from whiteboarding.exceptions import InvalidConfig
 
 
-class Whiteboarding:
+class Whiteboarding(metaclass=Singleton):
     CONFIG_PATH = "config.json"
     CONFIG_MANDATORY_FIELDS = ["ssl_enabled", "port_number", "interface"]
     SSL_REQUIRED_FIELDS = ["ssl_cert_path", "ssl_key_path"]
@@ -18,6 +20,10 @@ class Whiteboarding:
 
         self.config['handler'] = self.handle_client
         self.session_server = EncryptedSessionServer(**self.config)
+        self.redis_connector = RedisConnector("localhost", 6379)
+        self.online_users = {
+            "user_id": 1
+        }
 
     def load_config(self):
         with open(self.CONFIG_PATH, "r") as file:
@@ -53,7 +59,12 @@ class Whiteboarding:
         await self.session_server.start_server()
 
     async def handle_client(self, client_socket):
+        client_join = await client_socket.recv()
+
+        # self.online_users[]
+        while True:
+            client_msg = await client_socket.recv()
+
         print("got client")
         await client_socket.send(json.dumps({"message": "hi"}))
-        res = await client_socket.recv()
         print(res)

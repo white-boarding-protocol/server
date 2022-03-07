@@ -1,5 +1,6 @@
 from events.masterevent import MasterEvent
 from events.room.constants import RoomEventType
+from whiteboarding.whiteboarding import Whiteboarding
 
 
 class RoomEvent(MasterEvent):
