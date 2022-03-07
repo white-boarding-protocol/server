@@ -15,11 +15,12 @@ async def handler(websocket):
 
 if __name__ == "__main__":
     data = {
-        "type": 3,
-        "text": "slm",
+        "type": 1,
+        "event_type": 1,
+        "target_user": "4",
         "session_id": "1",
         "user_id": "1",
-        "action": 2
+        "action": 1
     }
     s = MasterEvent.deserialize(json.dumps(data))
     print(json.dumps(vars(s)))
