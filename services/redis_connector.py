@@ -39,7 +39,7 @@ class RedisConnector:
 
     def get_events(self, room_id):
         # get the event id of this room and fetch all the list values
-        return self.get_items_from_list(self.get_event_id(room_id), True)
+        return self.get_items_from_list(self.get_event_id(room_id), 0, -1, True)
 
     def get_event_id(self, room_id):
         # get event id - the value in 0 index
@@ -54,22 +54,22 @@ class RedisConnector:
 
     def create_room(self, host):
         room_id = str(uuid.uuid1())
-        self.redis.lpush(room_id, str(uuid.uuid1())) # insert a random id as events_id
-        self.insert_user(room_id, host) # add host the next
+        self.redis.lpush(room_id, str(uuid.uuid1()))  # insert a random id as events_id
+        self.insert_user(room_id, host)  # add host the next
         return room_id
 
     def insert_event(self, room_id, events):
         events_id = self.get_event_id(room_id)
         if not events_id:
             events_id = str(uuid.uuid1())
-            
+
         events = list(map(lambda e: json.dumps(e), events))
         self.redis.lpush(events_id, *events)
 
     def insert_user(self, room_id, user):
         user_id = str(uuid.uuid1())
         self.put(user_id, user)
-        self.redis.rpush(room_id, user)
+        self.redis.rpush(room_id, user_id)
 
     def put(self, key, value):
         """
@@ -99,10 +99,10 @@ class RedisConnector:
 
 if __name__ == "__main__":
     rc = RedisConnector("localhost", 6379)
-    host = "session.bipin"
-    participant1 = "session.part1"
-    participant2 = "session.part2"
-    events = [{"key1":"asasdfd"}, {"key2":"adsfsfsdf"}, {"check":"asd"}]
+    host = "session.bipin.1"
+    participant1 = "session.part1.1"
+    participant2 = "session.part2.1"
+    events = [{"key1": "asasdfd"}, {"key2": "adsfsfsdf"}, {"check": "asd"}]
 
     room_id = rc.create_room(host)
     rc.insert_event(room_id, events)
