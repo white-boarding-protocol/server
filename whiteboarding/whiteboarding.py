@@ -58,12 +58,17 @@ class Whiteboarding(metaclass=Singleton):
 
     async def handle_client(self, client_socket):
         from events.masterevent import MasterEvent
-        client_join_msg = await client_socket.recv()
-        MasterEvent.deserialize(client_join_msg)
-        # self.online_users[]
-        while True:
-            client_msg = await client_socket.recv()
 
-        print("got client")
-        await client_socket.send(json.dumps({"message": "hi"}))
-        print(res)
+        client_join_msg = await json.loads(client_socket.recv())
+        user_id = client_join_msg.get("user_id")
+        if user_id is None and type(user_id) is str:
+            await client_socket.send(json.dumps({"message": "abort"}))
+            return
+
+        self.online_users[user_id] = client_socket
+
+        client_msg = await json.loads(client_socket.recv())
+        while client_msg.get("message") != "abort":
+            event = MasterEvent.deserialize(client_msg)
+            event.exec()
+            client_msg = await json.loads(client_socket.recv())
