@@ -1,7 +1,9 @@
+import asyncio
 import json
 import logging
 import netifaces
 
+from events.exceptions import InvalidEvent, Disconnected
 from security.encrypted_session_server import EncryptedSessionServer
 from services.redis_connector import RedisConnector
 from singleton.singleton import Singleton
@@ -16,18 +18,20 @@ class Whiteboarding(metaclass=Singleton):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.error_message = None
-        self.config = self.load_config()
+        self._config = self._load_config()
 
-        self.config['handler'] = self.handle_client
-        self.session_server = EncryptedSessionServer(**self.config)
+        self._config['handler'] = self.handle_client
+        self.session_server = EncryptedSessionServer(**self._config)
         self.redis_connector = RedisConnector("localhost", 6379)
-        self.online_users = {}
 
-    def load_config(self):
+        self._online_users = {}
+        self._online_users_lock = asyncio.Lock()
+
+    def _load_config(self):
         with open(self.CONFIG_PATH, "r") as file:
             config = json.load(file)
 
-        if self.is_config_valid(config):
+        if self._is_config_valid(config):
             config['ip_address'] = netifaces.ifaddresses(config.pop('interface')).get(netifaces.AF_INET)[0].get('addr')
 
             self.logger.info("Config file successfully loaded")
@@ -36,7 +40,7 @@ class Whiteboarding(metaclass=Singleton):
             self.logger.error(self.error_message)
             raise InvalidConfig(self.error_message)
 
-    def is_config_valid(self, config):
+    def _is_config_valid(self, config):
         for mandatory_key in self.CONFIG_MANDATORY_FIELDS:
             if mandatory_key not in config:
                 self.error_message = f"{mandatory_key} not included in the config file"
@@ -56,19 +60,26 @@ class Whiteboarding(metaclass=Singleton):
     async def start(self):
         await self.session_server.start_server()
 
-    async def handle_client(self, client_socket):
+    @staticmethod
+    async def handle_client(client_socket):
         from events.masterevent import MasterEvent
 
-        client_join_msg = await json.loads(client_socket.recv())
-        user_id = client_join_msg.get("user_id")
-        if user_id is None and type(user_id) is str:
-            await client_socket.send(json.dumps({"message": "abort"}))
-            return
-
-        self.online_users[user_id] = client_socket
-
-        client_msg = await json.loads(client_socket.recv())
-        while client_msg.get("message") != "abort":
-            event = MasterEvent.deserialize(client_msg)
-            event.exec()
+        is_online = True
+        while is_online:
             client_msg = await json.loads(client_socket.recv())
+            event = MasterEvent.deserialize(client_msg)
+            try:
+                event.exec()
+            except InvalidEvent:
+                # TODO send invalid msg
+                await client_socket.send(json.dumps({"message": "Invalid data"}))
+            except Disconnected:
+                is_online = False
+
+    def add_online_user(self, user_id, client_socket):
+        with self._online_users_lock:
+            self._online_users[user_id] = client_socket
+
+    def remove_online_user(self, user_id):
+        with self._online_users_lock:
+            self._online_users.pop(user_id)

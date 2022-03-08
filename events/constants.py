@@ -2,6 +2,7 @@ from enum import IntEnum
 
 
 class EventType(IntEnum):
+    SERVER = 0
     ROOM = 1
     DRAW = 2
     STICKY_NOTE = 3
@@ -11,7 +12,7 @@ class EventType(IntEnum):
 
 
 class EventAction(IntEnum):
-    NONE = 1
-    CREATE = 2
-    EDIT = 3
-    REMOVE = 4
+    NONE = 0
+    CREATE = 1
+    EDIT = 2
+    REMOVE = 3

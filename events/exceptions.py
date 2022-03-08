@@ -5,4 +5,9 @@ class PermissionDenied(Exception):
 
 class InvalidEvent(Exception):
     def __init__(self):
-        super().__init__(f"Invalid Event")
+        super().__init__("Invalid Event")
+
+
+class Disconnected(Exception):
+    def __init__(self):
+        super().__init__("User had disconnected")
