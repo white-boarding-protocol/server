@@ -2,7 +2,7 @@ from abc import abstractmethod
 from time import time
 
 from events.constants import EventType, EventAction
-from events.exceptions import PermissionDenied
+from events.exceptions import PermissionDenied, InvalidEvent
 from whiteboarding.whiteboarding import Whiteboarding
 
 
@@ -34,37 +34,41 @@ class MasterEvent:
     def handle(self) -> list:
         pass
 
+    @abstractmethod
+    def is_validate(self) -> bool:
+        pass
+
     def exec(self):
         if self.has_perm():
-            redistribute_to = self.handle()
-            self._redistribute(redistribute_to)
+            if self.is_validate():
+                redistribute_to = self.handle()
+                self._redistribute(redistribute_to)
+            else:
+                raise InvalidEvent()
         else:
             raise PermissionDenied()
 
     @staticmethod
     def deserialize(data):
-        event_type = data.pop("type")
+        event_type = data.get("type")
         if event_type is None:
             return MasterEvent(**data)
 
+        data.pop("type")
         if event_type == EventType.ROOM:
             from events.room.room_event import RoomEvent
             return RoomEvent(**data)
         elif event_type == EventType.DRAW:
             from events.whiteboard.draw import DrawWhiteboardEvent
-            data["action"] = EventAction(data["action"])
             return DrawWhiteboardEvent(**data)
         elif event_type == EventType.STICKY_NOTE:
             from events.whiteboard.sticky_note import StickyNoteWhiteboardEvent
-            data["action"] = EventAction(data["action"])
             return StickyNoteWhiteboardEvent(**data)
         elif event_type == EventType.IMAGE:
             from events.whiteboard.image import ImageWhiteboardEvent
-            data["action"] = EventAction(data["action"])
             return ImageWhiteboardEvent(**data)
         elif event_type == EventType.UNDO:
             from events.whiteboard.undo import UndoWhiteboardEvent
-            data["action"] = EventAction(data["action"])
             return UndoWhiteboardEvent(**data)
 
     def _redistribute(self, redistribute_to: list):
