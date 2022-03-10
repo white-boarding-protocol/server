@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from time import time
 
-from events.constants import EventType, EventAction
+from events.constants import EventType
 from events.exceptions import PermissionDenied, InvalidEvent
 from whiteboarding.whiteboarding import Whiteboarding
 
@@ -35,12 +35,12 @@ class MasterEvent:
         pass
 
     @abstractmethod
-    def is_validate(self) -> bool:
+    def is_valid(self) -> bool:
         pass
 
     def exec(self):
         if self.has_perm():
-            if self.is_validate():
+            if self.is_valid():
                 redistribute_to = self.handle()
                 self._redistribute(redistribute_to)
             else:
