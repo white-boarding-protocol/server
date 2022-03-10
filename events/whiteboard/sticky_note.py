@@ -1,6 +1,8 @@
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 
 
+# TODO Sep
+
 class StickyNoteWhiteboardEvent(WhiteboardEvent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

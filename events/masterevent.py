@@ -1,3 +1,4 @@
+import json
 from abc import abstractmethod
 from time import time
 
@@ -38,15 +39,17 @@ class MasterEvent:
     def is_valid(self) -> bool:
         pass
 
+    @abstractmethod
+    def handle_error(self):
+        pass
+
     def exec(self):
         if self.has_perm():
             if self.is_valid():
                 redistribute_to = self.handle()
                 self._redistribute(redistribute_to)
             else:
-                raise InvalidEvent()
-        else:
-            raise PermissionDenied()
+                self.handle_error()
 
     @staticmethod
     def deserialize(data):
@@ -72,7 +75,7 @@ class MasterEvent:
             return UndoWhiteboardEvent(**data)
 
     def _redistribute(self, redistribute_to: list):
-        pass
+        event_json = json.dumps(self.to_dict())
 
     def to_dict(self) -> dict:
         return {

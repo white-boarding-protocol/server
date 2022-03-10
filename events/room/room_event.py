@@ -1,6 +1,8 @@
 from events.masterevent import MasterEvent
 
 
+# TODO Sep
+
 class RoomEvent(MasterEvent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -16,9 +16,6 @@ class WhiteboardEvent(MasterEvent):
         users = self.room_users
         return self.user_id in users
 
-    def handle(self) -> list:
-        return []
-
     def to_dict(self) -> dict:
         parent = super().to_dict()
         parent["action"] = self.action

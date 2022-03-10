@@ -68,13 +68,7 @@ class Whiteboarding(metaclass=Singleton):
         while is_online:
             client_msg = await json.loads(client_socket.recv())
             event = MasterEvent.deserialize(client_msg)
-            try:
-                event.exec()
-            except InvalidEvent:
-                # TODO send invalid msg
-                await client_socket.send(json.dumps({"message": "Invalid data"}))
-            except Disconnected:
-                is_online = False
+            event.exec()
 
     def add_online_user(self, user_id, client_socket):
         with self._online_users_lock:

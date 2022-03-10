@@ -1,6 +1,8 @@
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 
 
+# TODO Sam
+
 class DrawWhiteboardEvent(WhiteboardEvent):
 
     def __init__(self, **kwargs):
