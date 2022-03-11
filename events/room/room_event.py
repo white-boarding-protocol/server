@@ -42,7 +42,7 @@ class RoomEvent(MasterEvent):
         if self.type != RoomEventType.CREATE_ROOM and self.room_id is None:
             self.error_msg = "room_id parameter is missing in the payload"
             return False
-        if self.type in [RoomEventType.ACCEPT_JOIN, RoomEventType.DECLINE_JOIN]:
+        if self.type in [RoomEventType.ACCEPT_JOIN, RoomEventType.DECLINE_JOIN] and self.target_user is None:
             self.error_msg = "target_user is missing in the payload"
             return False
         return True
