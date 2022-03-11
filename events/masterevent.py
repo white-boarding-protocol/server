@@ -3,15 +3,18 @@ from abc import abstractmethod
 from time import time
 
 from events.constants import EventType
-from events.exceptions import PermissionDenied, InvalidEvent
 from whiteboarding.whiteboarding import Whiteboarding
 
 
 class MasterEvent:
+    CONNECT_MSG = "hello"
+    DISCONNECT_MSG = "fin"
+
     def __init__(self, **kwargs):
         self.user_id = kwargs.get("user_id")
         self.room_id = kwargs.get("room_id")
         self.message = kwargs.get("message")
+        self.client_socket = kwargs.get("client_socket")
 
         if kwargs.get("time_stamp"):
             self.time_stamp = kwargs.get("time_stamp")
@@ -32,7 +35,7 @@ class MasterEvent:
         pass
 
     @abstractmethod
-    def handle(self) -> list:
+    async def handle(self) -> list:
         pass
 
     @abstractmethod
@@ -40,19 +43,48 @@ class MasterEvent:
         pass
 
     @abstractmethod
-    def handle_error(self):
+    async def handle_error(self):
         pass
 
-    def exec(self):
-        if self.has_perm():
-            if self.is_valid():
-                redistribute_to = self.handle()
-                self._redistribute(redistribute_to)
+    async def exec(self) -> bool:
+        continue_connection = True
+        if self.user_id is None:
+            await self.client_socket.send(json.dumps({"message": "user_id is a required field", "status": 400}))
+
+        if not self.whiteboarding.is_client_registered(self.user_id):
+            if self.message == self.CONNECT_MSG:
+                await self._register_user()
             else:
-                self.handle_error()
+                continue_connection = False
+        else:
+            if self.message == self.DISCONNECT_MSG:
+                await self._unregister_user()
+                continue_connection = False
+            else:
+                if self.has_perm():
+                    if self.is_valid():
+                        redistribute_to = await self.handle()
+                        await self._redistribute(redistribute_to)
+                    else:
+                        await self.handle_error()
+                else:
+                    await self.client_socket.send(
+                        json.dumps({"message": "user cannot perform this action", "status": 403}))
+
+        return continue_connection
+
+    async def _register_user(self):
+        self.whiteboarding.add_online_user(self.user_id, self.client_socket)
+        await self.client_socket.send({"message": "connected", "status": 200})
+
+    async def _unregister_user(self):
+        self.whiteboarding.remove_online_user(self.user_id)
+        await self.client_socket.send({"message": "disconnected", "status": 200})
 
     @staticmethod
-    def deserialize(data):
+    def deserialize(data, client_socket):
+        data["client_socket"] = client_socket
+
         event_type = data.get("type")
         if event_type is None:
             return MasterEvent(**data)
@@ -74,8 +106,11 @@ class MasterEvent:
             from events.whiteboard.undo import UndoWhiteboardEvent
             return UndoWhiteboardEvent(**data)
 
-    def _redistribute(self, redistribute_to: list):
+    async def _redistribute(self, redistribute_to: list):
         event_json = json.dumps(self.to_dict())
+        for user_id in redistribute_to:
+            user_socket = self.whiteboarding.get_client_socket(user_id)
+            await user_socket.send(json.dumps(event_json))
 
     def to_dict(self) -> dict:
         return {

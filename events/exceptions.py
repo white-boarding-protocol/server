@@ -10,4 +10,4 @@ class InvalidEvent(Exception):
 
 class Disconnected(Exception):
     def __init__(self):
-        super().__init__("User had disconnected")
+        super().__init__("User has disconnected")
