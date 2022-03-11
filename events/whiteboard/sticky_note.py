@@ -15,6 +15,9 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
         return self.room_users
 
     def is_valid(self) -> bool:
+        if self.x_coordinate is None or self.y_coordinate is None:
+            self.error_msg = "coordinate is missing in the payload"
+            return False
         if self.room_id is None:
             self.error_msg = "room_id parameter is missing in the payload"
             return False
