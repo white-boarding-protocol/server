@@ -23,12 +23,20 @@ class MasterEvent:
 
         self.whiteboarding = Whiteboarding()
         self._room_users = None
+        self._is_user_host = None
 
     @property
     def room_users(self):
         if self._room_users is None:
             self._room_users = self.whiteboarding.redis_connector.get_users(self.room_id)
         return self._room_users
+
+    @property
+    def is_user_host(self):
+        # TODO to be implemented
+        if self._is_user_host is None:
+            self._is_user_host = self.whiteboarding.redis_connector.get_host(self.room_id) == self.user_id
+        return self._is_user_host
 
     @abstractmethod
     def has_perm(self) -> bool:
@@ -61,15 +69,15 @@ class MasterEvent:
                 await self._unregister_user()
                 continue_connection = False
             else:
-                if self.has_perm():
-                    if self.is_valid():
+                if self.is_valid():
+                    if self.has_perm():
                         redistribute_to = await self.handle()
                         await self._redistribute(redistribute_to)
                     else:
-                        await self.handle_error()
+                        await self.client_socket.send(
+                            json.dumps({"message": "user cannot perform this action", "status": 403}))
                 else:
-                    await self.client_socket.send(
-                        json.dumps({"message": "user cannot perform this action", "status": 403}))
+                    await self.handle_error()
 
         return continue_connection
 
