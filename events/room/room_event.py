@@ -26,24 +26,46 @@ class RoomEvent(MasterEvent):
 
     async def handle(self) -> list:
         if self.type == RoomEventType.CREATE_ROOM:
-            pass
+            return await self._create_room()
         elif self.type == RoomEventType.END_ROOM:
-            pass
+            return await self._end_room()
         elif self.type == RoomEventType.USER_JOIN:
-            pass
+            return await self._enter_room()
         elif self.type == RoomEventType.USER_LEAVE:
-            pass
+            return await self._leave_room()
         elif self.type == RoomEventType.ACCEPT_JOIN:
-            pass
+            return await self._accept_join()
         elif self.type == RoomEventType.DECLINE_JOIN:
-            pass
-        return []
+            return await self._decline_join()
 
     def is_valid(self) -> bool:
         if self.type != RoomEventType.CREATE_ROOM and self.room_id is None:
             self.error_msg = "room_id parameter is missing in the payload"
             return False
+        if self.type in [RoomEventType.ACCEPT_JOIN, RoomEventType.DECLINE_JOIN]:
+            self.error_msg = "target_user is missing in the payload"
+            return False
         return True
 
     async def handle_error(self):
         await self.client_socket.send(json.dumps({"message": self.error_msg, "status": 400}))
+
+    async def _create_room(self) -> list:
+        self.whiteboarding.redis_connector.create_room(self.user_id)
+        await self.client_socket.send(json.dumps({"status": 201, "message": "Room created"}))
+        return []
+
+    async def _end_room(self) -> list:
+        pass
+
+    async def _leave_room(self) -> list:
+        pass
+
+    async def _accept_join(self) -> list:
+        pass
+
+    async def _decline_join(self) -> list:
+        pass
+
+    async def _enter_room(self) -> list:
+        pass
