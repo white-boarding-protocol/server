@@ -14,6 +14,7 @@ class MasterEvent:
         self.user_id = kwargs.get("user_id")
         self.room_id = kwargs.get("room_id")
         self.message = kwargs.get("message")
+        self.event_id = kwargs.get("event_id")
         self.client_socket = kwargs.get("client_socket")
 
         if kwargs.get("time_stamp"):
@@ -122,6 +123,7 @@ class MasterEvent:
 
     def to_dict(self) -> dict:
         return {
+            "event_id": self.event_id,
             "message": self.message,
             "user_id": self.user_id,
             "room_id": self.room_id,

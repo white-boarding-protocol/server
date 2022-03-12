@@ -1,7 +1,7 @@
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 
 
-# TODO Bipin
+# TODO Bipin, handle all different actions for your event
 
 class UndoWhiteboardEvent(WhiteboardEvent):
 

@@ -51,8 +51,9 @@ class RoomEvent(MasterEvent):
         await self.client_socket.send(json.dumps({"message": self.error_msg, "status": 400}))
 
     async def _create_room(self) -> list:
-        self.whiteboarding.redis_connector.create_room(self.user_id)
-        await self.client_socket.send(json.dumps({"status": 201, "message": "Room created"}))
+        self.room_id = self.whiteboarding.redis_connector.create_room(self.user_id)
+        self.whiteboarding.redis_connector.insert_user(self.room_id, self.user_id)
+        await self.client_socket.send(json.dumps({"status": 201, "message": "room created"}))
         return []
 
     async def _end_room(self) -> list:
@@ -62,10 +63,17 @@ class RoomEvent(MasterEvent):
         pass
 
     async def _accept_join(self) -> list:
-        pass
+        self.whiteboarding.redis_connector.insert_user(self.room_id, self.target_user)
+        room_events = self.whiteboarding.redis_connector.get_events(self.room_id)
+        await self.client_socket.send({"status": 200, "events": room_events})
+        # TODO not done
+        return []
 
     async def _decline_join(self) -> list:
         pass
 
     async def _enter_room(self) -> list:
-        pass
+        host_id = self.whiteboarding.redis_connector.get_host(self.room_id)
+        host_socket = self.whiteboarding.get_client_socket(host_id)
+        host_socket.send()
+        return [host_id]
