@@ -3,7 +3,6 @@ import json
 import logging
 import netifaces
 
-from events.exceptions import InvalidEvent, Disconnected
 from security.encrypted_session_server import EncryptedSessionServer
 from services.redis_connector import RedisConnector
 from singleton.singleton import Singleton
@@ -67,8 +66,8 @@ class Whiteboarding(metaclass=Singleton):
         is_online = True
         while is_online:
             client_msg = await json.loads(client_socket.recv())
-            event = MasterEvent.deserialize(client_msg)
-            event.exec()
+            event = MasterEvent.deserialize(client_msg, client_socket)
+            is_online = await event.exec()
 
     def add_online_user(self, user_id, client_socket):
         with self._online_users_lock:
@@ -80,4 +79,7 @@ class Whiteboarding(metaclass=Singleton):
 
     def get_client_socket(self, user_id):
         with self._online_users_lock:
-            return self._online_users[user_id]
+            return self._online_users.get(user_id)
+
+    def is_client_registered(self, user_id):
+        return self.get_client_socket(user_id) is not None

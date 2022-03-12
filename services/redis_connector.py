@@ -59,12 +59,19 @@ class RedisConnector:
         return room_id
 
     def insert_event(self, room_id, events):
+        # TODO produce an event id for the new event and then insert it
         events_id = self.get_event_id(room_id)
         if not events_id:
             events_id = str(uuid.uuid1())
 
         events = list(map(lambda e: json.dumps(e), events))
         self.redis.lpush(events_id, *events)
+
+    def edit_event(self, room_id, new_event):
+        pass
+
+    def remove_event(self, room_id, event_id):
+        pass
 
     def insert_user(self, room_id, user):
         user_id = str(uuid.uuid1())
