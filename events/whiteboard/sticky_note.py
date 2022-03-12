@@ -1,5 +1,6 @@
 import json
 
+from events.constants import EventAction
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 
 
@@ -11,10 +12,21 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
         self.error_msg = None
 
     def handle(self):
-        self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
-        return self.room_users
+        if self.action == EventAction.CREATE:
+            self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
+        elif self.action == EventAction.REMOVE:
+            self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
+        elif self.action == EventAction.EDIT:
+            self.whiteboarding.redis_connector.edit_event(self.room_id, self.to_dict())
+        return [x.get("id") for x in self.room_users]
 
     def is_valid(self) -> bool:
+        if self.action is None:
+            self.error_msg = "action is missing in the payload"
+            return False
+        if self.action in [EventAction.EDIT, EventAction.REMOVE] and self.event_id is None:
+            self.error_msg = "event_id is missing in the payload"
+            return False
         if self.x_coordinate is None or self.y_coordinate is None:
             self.error_msg = "coordinate is missing in the payload"
             return False

@@ -34,9 +34,8 @@ class MasterEvent:
 
     @property
     def is_user_host(self):
-        # TODO to be implemented
         if self._is_user_host is None:
-            self._is_user_host = self.whiteboarding.redis_connector.get_host(self.room_id) == self.user_id
+            self._is_user_host = self.whiteboarding.redis_connector.get_host(self.room_id).get("id") == self.user_id
         return self._is_user_host
 
     @abstractmethod

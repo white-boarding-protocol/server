@@ -12,7 +12,6 @@ class EventType(IntEnum):
 
 
 class EventAction(IntEnum):
-    NONE = 0
-    CREATE = 1
-    EDIT = 2
-    REMOVE = 3
+    CREATE = 0
+    EDIT = 1
+    REMOVE = 2

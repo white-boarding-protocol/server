@@ -13,7 +13,7 @@ class WhiteboardEvent(MasterEvent):
         self.y_coordinate = kwargs.get("y_coordinate")
 
     def has_perm(self) -> bool:
-        return self.user_id in self.room_users
+        return self.user_id in [x.get("id") for x in self.room_users]
 
     def to_dict(self) -> dict:
         parent = super().to_dict()
