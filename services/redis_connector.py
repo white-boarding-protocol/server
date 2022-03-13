@@ -73,8 +73,10 @@ class RedisConnector:
     def remove_event(self, room_id, event_id):
         pass
 
-    def insert_user(self, room_id, user):
-        user_id = str(uuid.uuid1())
+    def edit_user(self, user_id):
+        pass
+
+    def insert_user(self, room_id, user_id, user):
         self.put(user_id, user)
         self.redis.rpush(room_id, user_id)
 

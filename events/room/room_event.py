@@ -52,7 +52,12 @@ class RoomEvent(MasterEvent):
 
     async def _create_room(self) -> list:
         self.room_id = self.whiteboarding.redis_connector.create_room(self.user_id)
-        self.whiteboarding.redis_connector.insert_user(self.room_id, self.user_id)
+        user = {
+            "id": self.user_id,
+            "state": "in_room",
+            "room_id": self.room_id
+        }
+        self.whiteboarding.redis_connector.insert_user(self.room_id, self.user_id, user)
         await self.client_socket.send(json.dumps({"status": 201, "message": "room created"}))
         return []
 
