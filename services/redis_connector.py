@@ -64,6 +64,8 @@ class RedisConnector:
         else:
             return []
 
+    def get_last_event_id(self, room_id):
+        return self.__get_items_from_list(self.get_event_id(room_id), 0, -1, False).pop()
 
     def get_event_id(self, room_id):
         # get event id - the value in 0 index
