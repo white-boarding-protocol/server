@@ -29,7 +29,7 @@ class MasterEvent:
     @property
     def room_users(self):
         if self._room_users is None:
-            self._room_users = self.whiteboarding.redis_connector.get_users(self.room_id)
+            self._room_users = self.whiteboarding.redis_connector.get_room_users(self.room_id)
         return self._room_users
 
     @property

@@ -82,7 +82,7 @@ class RoomEvent(MasterEvent):
 
     async def _accept_join(self) -> list:
         self.whiteboarding.redis_connector.insert_user(self.room_id, self.target_user_id)
-        room_events = self.whiteboarding.redis_connector.get_events(self.room_id)
+        room_events = self.whiteboarding.redis_connector.get_room_events(self.room_id)
         await self.client_socket.send({"status": 200, "events": room_events})
         # TODO not done
         return []
