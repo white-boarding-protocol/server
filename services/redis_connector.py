@@ -44,6 +44,11 @@ class RedisConnector:
         return room_id
 
     def remove_room(self, room_id):
+        """
+        remove room details
+        :param room_id: room id
+        :return: None
+        """
         # remove all events
         event_ids = self.get_room_event_ids(room_id)
         for id in event_ids:
@@ -78,25 +83,65 @@ class RedisConnector:
     """
 
     def create_user(self, user_id, user):
+        """
+        Creates a new user, but does not assign it to any room
+        :param user_id: new user id
+        :param user: user details
+        :return: None
+        """
         self._put(user_id, user)
 
     def insert_user(self, room_id, user_id):
+        """
+        Assign user to a room
+        :param room_id: room id of room to be assigned
+        :param user_id: user id to assign
+        :return: None
+        """
         self.redis.rpush(room_id, user_id)
 
     def update_user(self, user_id, new_user):
+        """
+        Update user details
+        :param user_id: user id
+        :param new_user: updated details
+        :return: None
+        """
         self._put(user_id, new_user)
 
     def remove_user_from_room(self, room_id, user_id):
+        """
+        Remove association of the user to a room
+        :param room_id: room id
+        :param user_id: user id
+        :return: None
+        """
         # todo: remove user id from the main list as well
         pass
 
     def delete_user(self, user_id):
+        """
+        Delete a user details from redis
+        :param user_id: user id
+        :return: None
+        """
         self.redis.delete(user_id)
 
     def get_user(self, user_id):
+        """
+        Get user details
+        :param user_id: user id
+        :return: user details
+        """
         return self.redis.get(user_id)
 
     def get_room_user_ids(self, room_id, include_host=True):
+        """
+        Get list of user id belonging to a room
+        :param room_id: room id
+        :param include_host: include the host id as well?
+        :return: list of user id
+        """
         return self._get_items_from_list(room_id, 1 if include_host else 2, -1, False)
 
     def get_room_users(self, room_id, include_host=True):
@@ -115,6 +160,11 @@ class RedisConnector:
             return []
 
     def get_queue_users(self, room_id):
+        """
+        Get details of all users queuing up to be in a room
+        :param room_id: room id
+        :return: list of user details queuing up
+        """
         users = self.get_room_users(room_id)
         return list(map(lambda u: u and u.get["status"] == UserStatus.QUEUING, users))
 
@@ -129,6 +179,12 @@ class RedisConnector:
     """
 
     def insert_event(self, room_id, event):
+        """
+        Insert the new event and assign it to a room
+        :param room_id: room id
+        :param event: event details
+        :return: new event id
+        """
         new_event_id = "event_" + str(uuid.uuid1())
         events_id = self._get_event_reference(room_id)
         self.redis.rpush(events_id, new_event_id)
@@ -136,15 +192,36 @@ class RedisConnector:
         return new_event_id
 
     def edit_event(self, event_id, new_event):
+        """
+        Edit the event details
+        :param event_id: event id
+        :param new_event: updated event details
+        :return: None
+        """
         self._put(event_id, new_event)
 
     def remove_event(self, event_id):
+        """
+        Remove event details and from the room
+        :param event_id: event id
+        :return: None
+        """
         self.redis.delete(event_id)
 
     def get_event(self, event_id):
+        """
+        Get event details
+        :param event_id: event id
+        :return: details of the event
+        """
         return self._get(event_id)
 
     def get_room_event_ids(self, room_id):
+        """
+        Get list of event id belonging to a room
+        :param room_id: room id
+        :return: list of event id
+        """
         return self._get_items_from_list(self._get_event_reference(room_id), 0, -1, False)
 
     def get_room_events(self, room_id):
@@ -163,9 +240,19 @@ class RedisConnector:
             return []
 
     def get_last_event_id(self, room_id):
+        """
+        Get the last event id
+        :param room_id: room id
+        :return: last event id
+        """
         return self.get_room_event_ids(room_id).pop()
 
     def _get_event_reference(self, room_id):
+        """
+        Get the reference id that points to list of event ids belonging to a room
+        :param room_id: room id
+        :return: reference id
+        """
         # get event id - the value in 0 index
         return self._get_items_from_list(room_id, 0, 1, False)[0]
 
@@ -200,6 +287,14 @@ class RedisConnector:
 
 
     def _get_items_from_list(self, key, from_index=0, to_index=-1, parse_json=False):
+        """
+        Get the list of items from a list
+        :param key: key
+        :param from_index:  from index
+        :param to_index: to index
+        :param parse_json: parse the items as json
+        :return: list of items
+        """
         values = self.redis.lrange(key, from_index, to_index)
         if values:
             return list(map(lambda v: json.loads(v) if parse_json else v.decode("utf-8"), values))
