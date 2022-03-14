@@ -46,9 +46,6 @@ class CommentWhiteboardEvent(WhiteboardEvent):
             self.error_msg = "Comment text parameter is missing in the payload"
             return False
         return True
-    
-    async def handle_error(self):
-        await self.client_socket.send(json.dumps({"message": self.error_msg, "status": 400}))
 
     def to_dict(self) -> dict:
         parent = super().to_dict()

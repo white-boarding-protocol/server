@@ -9,7 +9,6 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.text = kwargs.get("text")
-        self.error_msg = None
 
     def handle(self):
         if self.action == EventAction.CREATE:
@@ -38,8 +37,6 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
             return False
         return True
 
-    async def handle_error(self):
-        await self.client_socket.send(json.dumps({"message": self.error_msg, "status": 400}))
 
     def to_dict(self) -> dict:
         parent_dict = super().to_dict()

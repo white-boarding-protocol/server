@@ -52,6 +52,3 @@ class DrawWhiteboardEvent(WhiteboardEvent):
             self.error_msg = "tool parameter is missing in the payload"
             return False
         return True
-
-    async def handle_error(self):
-        await self.client_socket.send(json.dumps({"message": self.error_msg, "status": 400}))

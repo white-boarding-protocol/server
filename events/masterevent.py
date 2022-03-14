@@ -16,6 +16,7 @@ class MasterEvent:
         self.message = kwargs.get("message")
         self.event_id = kwargs.get("event_id")
         self.client_socket = kwargs.get("client_socket")
+        self.error_msg = None
 
         if kwargs.get("time_stamp"):
             self.time_stamp = kwargs.get("time_stamp")
@@ -50,9 +51,8 @@ class MasterEvent:
     def is_valid(self) -> bool:
         pass
 
-    @abstractmethod
     async def handle_error(self):
-        pass
+        await self.client_socket.send(json.dumps({"message": self.error_msg, "status": 400}))
 
     async def exec(self) -> bool:
         continue_connection = True
