@@ -10,14 +10,14 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
         super().__init__(**kwargs)
         self.text = kwargs.get("text")
 
-    def handle(self):
+    async def handle(self):
         if self.action == EventAction.CREATE:
             self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
         elif self.action == EventAction.REMOVE:
             self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
         elif self.action == EventAction.EDIT:
             self.whiteboarding.redis_connector.edit_event(self.room_id, self.to_dict())
-        return [x.get("id") for x in self.room_users]
+        await self.redistribute()
 
     def is_valid(self) -> bool:
         if self.action is None:

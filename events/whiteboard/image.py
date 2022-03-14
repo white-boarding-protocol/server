@@ -12,7 +12,7 @@ class ImageWhiteboardEvent(WhiteboardEvent):
         # List of comments event ids that is attached to the image
         # This last can be empty but it cannot be missing
 
-    def handle(self) -> list:
+    async def handle(self) -> list:
         if self.action == EventAction.CREATE:
             self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
         elif self.action == EventAction.REMOVE:
@@ -23,7 +23,7 @@ class ImageWhiteboardEvent(WhiteboardEvent):
             self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
         elif self.action == EventAction.EDIT:
             self.whiteboarding.redis_connector.edit_event(self.event_id, self.to_dict())
-        return [x.get("id") for x in self.room_users]
+        await self.redistribute()
 
     def is_valid(self) -> bool:
         if self.action is None:

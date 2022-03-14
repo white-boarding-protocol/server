@@ -71,8 +71,7 @@ class MasterEvent:
             else:
                 if self.is_valid():
                     if self.has_perm():
-                        redistribute_to = await self.handle()
-                        await self._redistribute(redistribute_to)
+                        await self.handle()
                     else:
                         await self.client_socket.send(
                             json.dumps({"message": "user cannot perform this action", "status": 403}))
@@ -114,8 +113,8 @@ class MasterEvent:
             from events.whiteboard.undo import UndoWhiteboardEvent
             return UndoWhiteboardEvent(**data)
 
-    async def _redistribute(self, redistribute_to: list):
-        event_json = json.dumps(self.to_dict())
+    async def redistribute(self, redistribute_to: list):
+        event_json = json.dumps({"status": 300, "message": self.to_dict()})
         for user_id in redistribute_to:
             user_socket = self.whiteboarding.get_client_socket(user_id)
             await user_socket.send(json.dumps(event_json))

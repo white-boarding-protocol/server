@@ -6,8 +6,9 @@ class RemoveWhiteboardEvent(WhiteboardEvent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def handle(self):
+    async def handle(self):
         self.whiteboarding.redis_connector.remove_event(self.id)
+        await self.redistribute()
 
     def is_valid(self) -> bool:
         return True
