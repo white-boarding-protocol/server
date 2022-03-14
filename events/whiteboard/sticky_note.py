@@ -9,16 +9,15 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.text = kwargs.get("text")
-        self.error_msg = None
 
-    def handle(self):
+    async def handle(self):
         if self.action == EventAction.CREATE:
             self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
         elif self.action == EventAction.REMOVE:
             self.whiteboarding.redis_connector.remove_event(self.id, self.event_id)
         elif self.action == EventAction.EDIT:
-            self.whiteboarding.redis_connector.edit_event(self.id, self.to_dict())
-        return [x.get("id") for x in self.room_users]
+            self.whiteboarding.redis_connector.edit_event(self.room_id, self.to_dict())
+        await self.redistribute()
 
     def is_valid(self) -> bool:
         if self.action is None:
@@ -37,9 +36,6 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
             self.error_msg = "text parameter is missing in the payload"
             return False
         return True
-
-    async def handle_error(self):
-        await self.client_socket.send(json.dumps({"message": self.error_msg, "status": 400}))
 
     def to_dict(self) -> dict:
         parent_dict = super().to_dict()

@@ -11,7 +11,7 @@ class CommentWhiteboardEvent(WhiteboardEvent):
         self.text = kwargs.get("text")
         self.image_id = kwargs.get("image") 
 
-    def handle(self) -> list:
+    async def handle(self) -> list:
         if self.action == EventAction.CREATE:
             self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
             image_event = self.whiteboarding.redis_connector.get(self.image_id)
@@ -24,7 +24,7 @@ class CommentWhiteboardEvent(WhiteboardEvent):
             self.whiteboarding.redis_connector.edit_event(self.room_id, image_event) # Edit the image associated
         elif self.action == EventAction.EDIT:
             self.whiteboarding.redis_connector.edit_event(self.event_id, self.to_dict())
-        return [x.get("id") for x in self.room_users]
+        await self.redistribute()
 
     def is_valid(self) -> bool:
         if self.action is None:
@@ -46,9 +46,6 @@ class CommentWhiteboardEvent(WhiteboardEvent):
             self.error_msg = "Comment text parameter is missing in the payload"
             return False
         return True
-    
-    async def handle_error(self):
-        await self.client_socket.send(json.dumps({"message": self.error_msg, "status": 400}))
 
     def to_dict(self) -> dict:
         parent = super().to_dict()

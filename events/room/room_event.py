@@ -59,7 +59,6 @@ class RoomEvent(MasterEvent):
         }
         self.whiteboarding.redis_connector.insert_user(self.room_id, self.user_id, user)
         await self.client_socket.send(json.dumps({"status": 201, "message": "room created"}))
-        return []
 
     async def _end_room(self) -> list:
         room_users = self.room_users
@@ -70,7 +69,7 @@ class RoomEvent(MasterEvent):
 
         self.whiteboarding.redis_connector.remove_room(self.room_id)
         self.client_socket.send(json.dumps({"status": 200, "message": "room ended"}))
-        return [x.get("id") for x in room_users]
+        self.redistribute([x.get("id") for x in room_users])
 
     async def _leave_room(self) -> list:
         self.whiteboarding.redis_connector.remove_user_from_room(self.room_id, self.user_id)
@@ -78,14 +77,13 @@ class RoomEvent(MasterEvent):
         current_user_data["state"] = "out_room"
         self.whiteboarding.redis_connector.update_user(self.user_id, current_user_data)
         self.client_socket.send(json.dumps({"status": 200, "message": "left room"}))
-        return [x.get("id") for x in self.room_users]
+        self.redistribute([x.get("id") for x in self.room_users])
 
     async def _accept_join(self) -> list:
         self.whiteboarding.redis_connector.insert_user(self.room_id, self.target_user_id)
         room_events = self.whiteboarding.redis_connector.get_room_events(self.room_id)
         await self.client_socket.send({"status": 200, "events": room_events})
         # TODO not done
-        return []
 
     async def _decline_join(self) -> list:
         target_user_data = self.whiteboarding.redis_connector.get_user(self.target_user_id)
@@ -94,11 +92,9 @@ class RoomEvent(MasterEvent):
         self.whiteboarding.get_client_socket(self.target_user_id).send(
             json.dumps({"status": 403, "message": "join declined"}))
         self.client_socket.send(json.dumps({"status": 200, "message": "user declined"}))
-        return []
 
     async def _enter_room(self) -> list:
         # TODO not done
         host_id = self.whiteboarding.redis_connector.get_host(self.room_id)
         host_socket = self.whiteboarding.get_client_socket(host_id)
         host_socket.send()
-        return [host_id]

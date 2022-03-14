@@ -23,3 +23,6 @@ class WhiteboardEvent(MasterEvent):
         parent["y_coordinate"] = self.y_coordinate
         parent["id"] = self.id
         return parent
+    
+    async def redistribute(self):
+        return await super().redistribute([user.get("id") for user in self.room_users])
