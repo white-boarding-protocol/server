@@ -116,7 +116,7 @@ class RedisConnector:
         :param user_id: user id
         :return: None
         """
-        # todo: remove user id from the main list as well
+        self.redis.lrem(room_id, 0, user_id)
         pass
 
     def delete_user(self, user_id):
