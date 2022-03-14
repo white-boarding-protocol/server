@@ -14,12 +14,12 @@ class CommentWhiteboardEvent(WhiteboardEvent):
     async def handle(self) -> list:
         if self.action == EventAction.CREATE:
             self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
-            image_event = self.whiteboarding.redis_connector.get(self.image_id)
+            image_event = self.whiteboarding.redis_connector.get_event(self.image_id)
             image_event.comments.append(self.event_id) # Add the new comment to the image
             self.whiteboarding.redis_connector.edit_event(self.room_id, image_event) # Edit the image associated
         elif self.action == EventAction.REMOVE:
             self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
-            image_event = self.whiteboarding.redis_connector.get(self.image_id)
+            image_event = self.whiteboarding.redis_connector.get_event(self.image_id)
             image_event.comments.remove(self.event_id) # remove the comment from the image
             self.whiteboarding.redis_connector.edit_event(self.room_id, image_event) # Edit the image associated
         elif self.action == EventAction.EDIT:
