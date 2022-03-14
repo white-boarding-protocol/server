@@ -48,6 +48,11 @@ class RedisConnector:
         else:
             return []
 
+    def remove_user_from_room(self, room_id, user_id):
+        pass
+
+    def get_user(self, user_id):
+        pass
 
     def get_events(self, room_id):
         """
@@ -90,8 +95,12 @@ class RedisConnector:
         self.insert_user(room_id, host)  # add host the next
         return room_id
 
+    def remove_room(self, room_id):
+        pass
+
     def insert_event(self, room_id, event):
         new_event_id = "event_" + str(uuid.uuid1())
+
         events_id = self.get_event_id(room_id)
         self.redis.rpush(events_id, new_event_id)
         self.put(new_event_id, event)
@@ -103,8 +112,10 @@ class RedisConnector:
     def remove_event(self, event_id):
         self.redis.delete(event_id)
 
-    def insert_user(self, room_id, user):
-        user_id = "user_" + str(uuid.uuid1())
+    def update_user(self, user_id, new_user):
+        pass
+
+    def insert_user(self, room_id, user_id, user):
         self.put(user_id, user)
         self.redis.rpush(room_id, user_id)
 
