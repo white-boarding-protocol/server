@@ -31,7 +31,7 @@ class RedisConnector:
         # get the host id, which is the value at 1 index
         host_id = self.__get_items_from_list(room_id, 1, 2, False)[0]
         # get the detail of the host
-        return self.get(host_id)
+        return self.get_user(host_id)
 
     def get_users(self, room_id, include_host=True):
         """
@@ -52,7 +52,7 @@ class RedisConnector:
         pass
 
     def get_user(self, user_id):
-        pass
+        return self.redis.get(user_id)
 
     def get_events(self, room_id):
         """
@@ -61,18 +61,20 @@ class RedisConnector:
         :return: list of event details
         """
         # get the event id of this room and fetch all the list values
-        event_id_list = self.__get_items_from_list(self.get_event_id(room_id), 0, -1, False)
+        event_id_list = self.get_event_ids(room_id)
         # map all the event ids to the event details
         if event_id_list:
             event_details = list(map(lambda u: self.get(u), event_id_list))
             return [e for e in event_details if e is not None]  # filter all None values
         else:
             return []
+    def get_event_ids(self, room_id):
+        return self.__get_items_from_list(self.get_event_reference(room_id), 0, -1, False)
 
     def get_last_event_id(self, room_id):
-        return self.__get_items_from_list(self.get_event_id(room_id), 0, -1, False).pop()
+        return self.get_event_ids().pop()
 
-    def get_event_id(self, room_id):
+    def get_event_reference(self, room_id):
         # get event id - the value in 0 index
         return self.__get_items_from_list(room_id, 0, 1, False)[0]
 
@@ -96,29 +98,37 @@ class RedisConnector:
         return room_id
 
     def remove_room(self, room_id):
-        pass
+        # remove all events
+        event_ids = self.get_event_ids(room_id)
+        for id in event_ids:
+            self.redis.delete(id)
+        # remove event reference
+        self.redis.delete( self.get_event_reference(room_id) )
+        # remove the room
+        self.redis.delete(room_id)
+
 
     def insert_event(self, room_id, event):
         new_event_id = "event_" + str(uuid.uuid1())
-
-        events_id = self.get_event_id(room_id)
+        events_id = self.get_event_reference(room_id)
         self.redis.rpush(events_id, new_event_id)
-        self.put(new_event_id, event)
+        self.__put(new_event_id, event)
+        return new_event_id
 
     def edit_event(self, event_id, new_event):
-        self.put(event_id, new_event)
+        self.__put(event_id, new_event)
 
     def remove_event(self, event_id):
         self.redis.delete(event_id)
 
     def update_user(self, user_id, new_user):
-        pass
+        self.__put(user_id, new_user)
 
     def insert_user(self, room_id, user_id, user):
-        self.put(user_id, user)
+        self.__put(user_id, user)
         self.redis.rpush(room_id, user_id)
 
-    def put(self, key, value):
+    def __put(self, key, value):
         """
         Insert value in the redis db
         :param key: key
@@ -159,5 +169,5 @@ if __name__ == "__main__":
     print("host = ", rc.get_host(room_id))
     print("users = ", rc.get_users(room_id))
     print("users (excl host) = ", rc.get_users(room_id, False))
-    print("event_id = ", rc.get_event_id(room_id))
+    print("event_id = ", rc.get_event_reference(room_id))
     print("events = ", rc.get_events(room_id))

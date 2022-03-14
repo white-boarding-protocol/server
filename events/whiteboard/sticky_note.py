@@ -15,9 +15,9 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
         if self.action == EventAction.CREATE:
             self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
         elif self.action == EventAction.REMOVE:
-            self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
+            self.whiteboarding.redis_connector.remove_event(self.id, self.event_id)
         elif self.action == EventAction.EDIT:
-            self.whiteboarding.redis_connector.edit_event(self.room_id, self.to_dict())
+            self.whiteboarding.redis_connector.edit_event(self.id, self.to_dict())
         return [x.get("id") for x in self.room_users]
 
     def is_valid(self) -> bool:

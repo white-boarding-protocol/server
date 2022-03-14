@@ -21,4 +21,5 @@ class WhiteboardEvent(MasterEvent):
         parent["action"] = self.action
         parent["x_coordinate"] = self.x_coordinate
         parent["y_coordinate"] = self.y_coordinate
+        parent["id"] = self.id
         return parent
