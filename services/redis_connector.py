@@ -37,6 +37,12 @@ class RedisConnector:
         else:
             return []
 
+    def remove_user_from_room(self, room_id, user_id):
+        pass
+
+    def get_user(self, user_id):
+        pass
+
     def get_events(self, room_id):
         # get the event id of this room and fetch all the list values
         return self.get_items_from_list(self.get_event_id(room_id), 0, -1, True)
@@ -58,6 +64,9 @@ class RedisConnector:
         self.insert_user(room_id, host)  # add host the next
         return room_id
 
+    def remove_room(self, room_id):
+        pass
+
     def insert_event(self, room_id, events):
         # TODO produce an event id for the new event and then insert it
         events_id = self.get_event_id(room_id)
@@ -73,7 +82,7 @@ class RedisConnector:
     def remove_event(self, room_id, event_id):
         pass
 
-    def edit_user(self, user_id):
+    def update_user(self, user_id, new_user):
         pass
 
     def insert_user(self, room_id, user_id, user):
