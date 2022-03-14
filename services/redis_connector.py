@@ -65,7 +65,7 @@ class RedisConnector:
         # map all the event ids to the event details
         if event_id_list:
             event_details = list(map(lambda u: self.get(u), event_id_list))
-            return [e for e in event_details if e is not None] # filter all None values
+            return [e for e in event_details if e is not None]  # filter all None values
         else:
             return []
 
@@ -104,7 +104,6 @@ class RedisConnector:
         events_id = self.get_event_id(room_id)
         self.redis.rpush(events_id, new_event_id)
         self.put(new_event_id, event)
-
 
     def edit_event(self, event_id, new_event):
         self.put(event_id, new_event)

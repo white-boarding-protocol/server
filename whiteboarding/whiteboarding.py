@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import netifaces
+import os
 
 from security.encrypted_session_server import EncryptedSessionServer
 from services.redis_connector import RedisConnector
@@ -13,11 +14,18 @@ class Whiteboarding(metaclass=Singleton):
     CONFIG_PATH = "config.json"
     CONFIG_MANDATORY_FIELDS = ["ssl_enabled", "port_number", "interface"]
     SSL_REQUIRED_FIELDS = ["ssl_cert_path", "ssl_key_path"]
+    LOG_PATH = "/var/log/whiteboarding/"
 
     def __init__(self):
+        if not os.path.exists(self.LOG_PATH) or not os.path.isdir(self.LOG_PATH):
+            os.mkdir(self.LOG_PATH)
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(name)s :: %(message)s',
+                            datefmt='%a, %d %b %Y %H:%M:%S', filename=self.LOG_PATH + 'whiteboarding.log',
+                            filemode='a')
+
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.error_message = None
         self._config = self._load_config()
+        self.error_message = None
 
         self._config['handler'] = self.handle_client
         self.session_server = EncryptedSessionServer(**self._config)
