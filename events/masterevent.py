@@ -44,7 +44,7 @@ class MasterEvent:
         pass
 
     @abstractmethod
-    async def handle(self) -> list:
+    async def handle(self):
         pass
 
     @abstractmethod

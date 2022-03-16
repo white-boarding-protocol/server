@@ -1,5 +1,5 @@
 from events.whiteboard.whiteboard_event import WhiteboardEvent
-import json
+
 
 class RemoveWhiteboardEvent(WhiteboardEvent):
 
@@ -16,4 +16,3 @@ class RemoveWhiteboardEvent(WhiteboardEvent):
     def to_dict(self) -> dict:
         parent_dict = super().to_dict()
         return parent_dict
-

@@ -2,17 +2,16 @@ from events.constants import EventAction
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 import json
 
-# TODO Sam, handle all different actions for your event
 
 class ImageWhiteboardEvent(WhiteboardEvent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.data = kwargs.get("data") # Encoded data
-        self.ls_comment_id = kwargs.get("comments") 
+        self.data = kwargs.get("data")  # Encoded data
+        self.ls_comment_id = kwargs.get("comments")
         # List of comments event ids that is attached to the image
         # This last can be empty but it cannot be missing
 
-    async def handle(self) -> list:
+    async def handle(self):
         if self.action == EventAction.CREATE:
             self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
         elif self.action == EventAction.REMOVE:

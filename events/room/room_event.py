@@ -1,5 +1,6 @@
 import json
 
+from events.constants import UserStatus
 from events.masterevent import MasterEvent
 from events.room.constants import RoomEventType
 
@@ -24,7 +25,7 @@ class RoomEvent(MasterEvent):
         if self.type in [RoomEventType.ACCEPT_JOIN, RoomEventType.DECLINE_JOIN, RoomEventType.END_ROOM]:
             return self.is_user_host
 
-    async def handle(self) -> list:
+    async def handle(self):
         if self.type == RoomEventType.CREATE_ROOM:
             return await self._create_room()
         elif self.type == RoomEventType.END_ROOM:
@@ -50,51 +51,64 @@ class RoomEvent(MasterEvent):
     async def handle_error(self):
         await self.client_socket.send(json.dumps({"message": self.error_msg, "status": 400}))
 
-    async def _create_room(self) -> list:
+    async def _create_room(self):
         self.room_id = self.whiteboarding.redis_connector.create_room(self.user_id)
         user = {
             "id": self.user_id,
-            "state": "in_room",
+            "state": UserStatus.IN_ROOM,
             "room_id": self.room_id
         }
         self.whiteboarding.redis_connector.insert_user(self.room_id, self.user_id, user)
         await self.client_socket.send(json.dumps({"status": 201, "message": "room created"}))
 
-    async def _end_room(self) -> list:
+    async def _end_room(self):
         room_users = self.room_users
         for user in room_users:
-            user["state"] = "out_room"
+            user["state"] = UserStatus.OUT_ROOM
             user["room_id"] = None
             self.whiteboarding.redis_connector.update_user(user.get("id"), user)
 
         self.whiteboarding.redis_connector.remove_room(self.room_id)
-        self.client_socket.send(json.dumps({"status": 200, "message": "room ended"}))
-        self.redistribute([x.get("id") for x in room_users])
+        await self.client_socket.send(json.dumps({"status": 200, "message": "room ended"}))
+        await self.redistribute([x.get("id") for x in room_users])
 
-    async def _leave_room(self) -> list:
+    async def _leave_room(self):
         self.whiteboarding.redis_connector.remove_user_from_room(self.room_id, self.user_id)
         current_user_data = self.whiteboarding.redis_connector.get_user(self.user_id)
-        current_user_data["state"] = "out_room"
+        current_user_data["state"] = UserStatus.OUT_ROOM
         self.whiteboarding.redis_connector.update_user(self.user_id, current_user_data)
-        self.client_socket.send(json.dumps({"status": 200, "message": "left room"}))
-        self.redistribute([x.get("id") for x in self.room_users])
+        await self.client_socket.send(json.dumps({"status": 200, "message": "left room"}))
+        await self.redistribute([x.get("id") for x in self.room_users])
 
-    async def _accept_join(self) -> list:
+    async def _accept_join(self):
+        user = self.whiteboarding.redis_connector.get_user(self.target_user_id)
+        user["status"] = UserStatus.IN_ROOM
+        self.whiteboarding.redis_connector.update_user(self.target_user_id, user)
+
         self.whiteboarding.redis_connector.insert_user(self.room_id, self.target_user_id)
         room_events = self.whiteboarding.redis_connector.get_room_events(self.room_id)
-        await self.client_socket.send({"status": 200, "events": room_events})
-        # TODO not done
+        user_socket = self.whiteboarding.get_client_socket(self.target_user_id)
+        await user_socket.send(json.dumps({"status": 101, "message": "accepted", "events": room_events}))
 
-    async def _decline_join(self) -> list:
+        await self.client_socket.send(json.dumps({"status": 200, "message": "user accepted"}))
+
+    async def _decline_join(self):
         target_user_data = self.whiteboarding.redis_connector.get_user(self.target_user_id)
-        target_user_data["state"] = "out_room"
+        target_user_data["state"] = UserStatus.OUT_ROOM
+        target_user_data["room_id"] = None
         self.whiteboarding.redis_connector.update_user(self.target_user_id, target_user_data)
-        self.whiteboarding.get_client_socket(self.target_user_id).send(
+        await self.whiteboarding.get_client_socket(self.target_user_id).send(
             json.dumps({"status": 403, "message": "join declined"}))
-        self.client_socket.send(json.dumps({"status": 200, "message": "user declined"}))
+        await self.client_socket.send(json.dumps({"status": 200, "message": "user declined"}))
 
-    async def _enter_room(self) -> list:
-        # TODO not done
+    async def _enter_room(self):
+        user = self.whiteboarding.redis_connector.get_user(self.user_id)
+        user["status"] = UserStatus.QUEUING
+        user["room_id"] = self.room_id
+        self.whiteboarding.redis_connector.update_user(self.user_id, user)
+
         host_id = self.whiteboarding.redis_connector.get_host(self.room_id)
         host_socket = self.whiteboarding.get_client_socket(host_id)
-        host_socket.send()
+        await host_socket.send(json.dumps({"status": 100, "message": "user in queue"}))
+
+        await self.client_socket.send(json.dumps({"status": 200, "message": "request sent"}))

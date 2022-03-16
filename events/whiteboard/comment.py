@@ -1,27 +1,25 @@
-# TODO Sam, handle all different actions for your event
-
 from events.constants import EventAction
 from events.whiteboard.whiteboard_event import WhiteboardEvent
-import json
+
 
 class CommentWhiteboardEvent(WhiteboardEvent):
-    
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.text = kwargs.get("text")
-        self.image_id = kwargs.get("image") 
+        self.image_id = kwargs.get("image")
 
-    async def handle(self) -> list:
+    async def handle(self):
         if self.action == EventAction.CREATE:
             self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
             image_event = self.whiteboarding.redis_connector.get_event(self.image_id)
-            image_event.comments.append(self.event_id) # Add the new comment to the image
-            self.whiteboarding.redis_connector.edit_event(self.room_id, image_event) # Edit the image associated
+            image_event.comments.append(self.event_id)  # Add the new comment to the image
+            self.whiteboarding.redis_connector.edit_event(self.room_id, image_event)  # Edit the image associated
         elif self.action == EventAction.REMOVE:
             self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
             image_event = self.whiteboarding.redis_connector.get_event(self.image_id)
-            image_event.comments.remove(self.event_id) # remove the comment from the image
-            self.whiteboarding.redis_connector.edit_event(self.room_id, image_event) # Edit the image associated
+            image_event.comments.remove(self.event_id)  # remove the comment from the image
+            self.whiteboarding.redis_connector.edit_event(self.room_id, image_event)  # Edit the image associated
         elif self.action == EventAction.EDIT:
             self.whiteboarding.redis_connector.edit_event(self.event_id, self.to_dict())
         await self.redistribute()

@@ -1,8 +1,5 @@
 from events.constants import EventAction
 from events.whiteboard.whiteboard_event import WhiteboardEvent
-import json
-
-# TODO Sam, handle all different actions for your event
 
 
 class DrawWhiteboardEvent(WhiteboardEvent):
@@ -20,7 +17,7 @@ class DrawWhiteboardEvent(WhiteboardEvent):
         parent["width"] = self.width
         return parent
 
-    async def handle(self) -> list:
+    async def handle(self):
         if self.action == EventAction.CREATE:
             self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
         elif self.action == EventAction.REMOVE:

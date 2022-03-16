@@ -15,7 +15,7 @@ class EventType(IntEnum):
 class EventAction(IntEnum):
     CREATE = 0
     EDIT = 1
-    REMOVE = 2 # todo: does this action occur once we add REMOVE as event type?
+    REMOVE = 2
 
 
 # TODO: @sep change this status names if needed, or replace these occurences if you define the status elsewhere
