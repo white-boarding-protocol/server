@@ -4,6 +4,7 @@ import logging
 import netifaces
 import os
 
+from events.constants import UserStatus
 from security.encrypted_session_server import EncryptedSessionServer
 from services.redis_connector import RedisConnector
 from singleton.singleton import Singleton
@@ -80,10 +81,17 @@ class Whiteboarding(metaclass=Singleton):
     def add_online_user(self, user_id, client_socket):
         with self._online_users_lock:
             self._online_users[user_id] = client_socket
+        user = {
+            "id": user_id,
+            "room_id": None,
+            "state": UserStatus.OUT_ROOM
+        }
+        self.redis_connector.create_user(user_id, user)
 
     def remove_online_user(self, user_id):
         with self._online_users_lock:
             self._online_users.pop(user_id)
+        self.redis_connector.remove_user(user_id)
 
     def get_client_socket(self, user_id):
         with self._online_users_lock:

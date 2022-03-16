@@ -53,12 +53,11 @@ class RoomEvent(MasterEvent):
 
     async def _create_room(self):
         self.room_id = self.whiteboarding.redis_connector.create_room(self.user_id)
-        user = {
-            "id": self.user_id,
-            "state": UserStatus.IN_ROOM,
-            "room_id": self.room_id
-        }
-        self.whiteboarding.redis_connector.insert_user(self.room_id, self.user_id, user)
+        user = self.whiteboarding.redis_connector.get_user(self.user_id)
+        user["status"] = UserStatus.IN_ROOM
+        user["room_id"] = self.room_id
+        self.whiteboarding.redis_connector.update_user(self.user_id, user)
+        self.whiteboarding.redis_connector.insert_user(self.room_id, self.user_id)
         await self.client_socket.send(json.dumps({"status": 201, "message": "room created"}))
 
     async def _end_room(self):
@@ -76,6 +75,7 @@ class RoomEvent(MasterEvent):
         self.whiteboarding.redis_connector.remove_user_from_room(self.room_id, self.user_id)
         current_user_data = self.whiteboarding.redis_connector.get_user(self.user_id)
         current_user_data["state"] = UserStatus.OUT_ROOM
+        current_user_data["room_id"] = None
         self.whiteboarding.redis_connector.update_user(self.user_id, current_user_data)
         await self.client_socket.send(json.dumps({"status": 200, "message": "left room"}))
         await self.redistribute([x.get("id") for x in self.room_users])

@@ -31,16 +31,16 @@ class RedisConnector:
         - get host user details
     """
 
-    def create_room(self, host):
+    def create_room(self, host_id):
         """
         create a new room
-        :param host: host id
+        :param host_id: host id
         :return: new room id
         """
         room_id = "room_" + str(uuid.uuid1())
         events_id = "room-events_" + str(uuid.uuid1())
         self.redis.lpush(room_id, events_id)
-        self.insert_user(room_id, host)  # add host the next
+        self.insert_user(room_id, host_id)  # add host the next
         return room_id
 
     def remove_room(self, room_id):
@@ -208,6 +208,9 @@ class RedisConnector:
         """
         self.redis.delete(event_id)
 
+    def remove_user(self, user_id):
+        pass
+
     def get_event(self, event_id):
         """
         Get event details
@@ -256,10 +259,10 @@ class RedisConnector:
         # get event id - the value in 0 index
         return self._get_items_from_list(room_id, 0, 1, False)[0]
 
-
     """
     Internal Redis 
     """
+
     def _put(self, key, value):
         """
         Insert value in the redis db
@@ -284,7 +287,6 @@ class RedisConnector:
             return json.loads(json_value)
         else:
             return None
-
 
     def _get_items_from_list(self, key, from_index=0, to_index=-1, parse_json=False):
         """
