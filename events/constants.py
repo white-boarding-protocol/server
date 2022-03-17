@@ -2,7 +2,6 @@ from enum import IntEnum
 
 
 class EventType(IntEnum):
-    SERVER = 0
     ROOM = 1
     DRAW = 2
     STICKY_NOTE = 3
@@ -18,7 +17,6 @@ class EventAction(IntEnum):
     REMOVE = 2
 
 
-# TODO: @sep change this status names if needed, or replace these occurences if you define the status elsewhere
 class UserStatus(IntEnum):
     IN_ROOM = 0
     OUT_ROOM = 1

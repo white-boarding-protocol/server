@@ -12,6 +12,7 @@ class MasterEvent:
 
     def __init__(self, **kwargs):
         self.user_id = kwargs.get("user_id")
+        self.uuid = kwargs.get("uuid")
         self.room_id = kwargs.get("room_id")
         self.message = kwargs.get("message")
         self.event_id = kwargs.get("event_id")
@@ -52,12 +53,13 @@ class MasterEvent:
         pass
 
     async def handle_error(self):
-        await self.client_socket.send(json.dumps({"message": self.error_msg, "status": 400}))
+        await self.client_socket.send(json.dumps({"message": self.error_msg, "status": 400, "uuid": self.uuid}))
 
     async def exec(self) -> bool:
         continue_connection = True
         if self.user_id is None:
-            await self.client_socket.send(json.dumps({"message": "user_id is a required field", "status": 400}))
+            await self.client_socket.send(
+                json.dumps({"message": "user_id is a required field", "status": 400, "uuid": self.uuid}))
 
         if not self.whiteboarding.is_client_registered(self.user_id):
             if self.message == self.CONNECT_MSG:
@@ -73,8 +75,8 @@ class MasterEvent:
                     if self.has_perm():
                         await self.handle()
                     else:
-                        await self.client_socket.send(
-                            json.dumps({"message": "user cannot perform this action", "status": 403}))
+                        await self.client_socket.send(json.dumps(
+                            {"message": "user cannot perform this action", "status": 403, "uuid": self.uuid}))
                 else:
                     await self.handle_error()
 
@@ -82,11 +84,11 @@ class MasterEvent:
 
     async def _register_user(self):
         self.whiteboarding.add_online_user(self.user_id, self.client_socket)
-        await self.client_socket.send(json.dumps({"message": "connected", "status": "100"}))
+        await self.client_socket.send(json.dumps({"message": "connected", "status": 200, "uuid": self.uuid}))
 
     async def _unregister_user(self):
         self.whiteboarding.remove_online_user(self.user_id)
-        await self.client_socket.send(json.dumps({"message": "disconnected", "status": "199"}))
+        await self.client_socket.send(json.dumps({"message": "disconnected", "status": 200, "uuid": self.uuid}))
 
     @staticmethod
     def deserialize(data, client_socket):

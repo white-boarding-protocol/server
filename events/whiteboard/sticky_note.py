@@ -1,5 +1,3 @@
-import json
-
 from events.constants import EventAction
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 

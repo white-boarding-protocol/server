@@ -1,6 +1,5 @@
 from events.constants import EventAction
 from events.whiteboard.whiteboard_event import WhiteboardEvent
-import json
 
 
 class ImageWhiteboardEvent(WhiteboardEvent):
