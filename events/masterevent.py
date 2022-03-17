@@ -82,11 +82,11 @@ class MasterEvent:
 
     async def _register_user(self):
         self.whiteboarding.add_online_user(self.user_id, self.client_socket)
-        await self.client_socket.send(json.dumps({"message": "connected", "status": 200}))
+        await self.client_socket.send(json.dumps({"message": "connected", "status": "100"}))
 
     async def _unregister_user(self):
         self.whiteboarding.remove_online_user(self.user_id)
-        await self.client_socket.send(json.dumps({"message": "disconnected", "status": 200}))
+        await self.client_socket.send(json.dumps({"message": "disconnected", "status": "199"}))
 
     @staticmethod
     def deserialize(data, client_socket):
