@@ -133,7 +133,7 @@ class RedisConnector:
         :param user_id: user id
         :return: user details
         """
-        return self.redis.get(user_id)
+        return self._get(user_id)
 
     def get_room_user_ids(self, room_id, include_host=True):
         """
@@ -155,7 +155,7 @@ class RedisConnector:
         user_id_list = self.get_room_user_ids(room_id, include_host)
         # map all the user ids to the user details
         if user_id_list:
-            return list(map(lambda u: self._get(u), user_id_list))
+            return list(map(lambda u: self.get_user(u), user_id_list))
         else:
             return []
 
