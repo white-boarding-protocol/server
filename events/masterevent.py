@@ -81,6 +81,7 @@ class MasterEvent:
         return continue_connection
 
     async def _register_user(self):
+        print("reg")
         self.whiteboarding.add_online_user(self.user_id, self.client_socket)
         await self.client_socket.send({"message": "connected", "status": 200})
 
