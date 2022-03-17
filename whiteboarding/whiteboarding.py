@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 import netifaces
@@ -33,7 +32,6 @@ class Whiteboarding(metaclass=Singleton):
         self.redis_connector = RedisConnector("localhost", 6379)
 
         self._online_users = {}
-        self._online_users_lock = asyncio.Lock()
 
     def _load_config(self):
         with open(self.CONFIG_PATH, "r") as file:
@@ -71,17 +69,16 @@ class Whiteboarding(metaclass=Singleton):
     @staticmethod
     async def handle_client(client_socket):
         from events.masterevent import MasterEvent
-        print("client in")
 
         is_online = True
         while is_online:
             client_msg = json.loads(await client_socket.recv())
+            print(client_msg)
             event = MasterEvent.deserialize(client_msg, client_socket)
             is_online = await event.exec()
 
     def add_online_user(self, user_id, client_socket):
-        with self._online_users_lock:
-            self._online_users[user_id] = client_socket
+        self._online_users[user_id] = client_socket
         user = {
             "id": user_id,
             "room_id": None,
