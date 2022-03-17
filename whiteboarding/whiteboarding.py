@@ -15,7 +15,7 @@ class Whiteboarding(metaclass=Singleton):
     CONFIG_PATH = "config.json"
     CONFIG_MANDATORY_FIELDS = ["ssl_enabled", "port_number", "interface"]
     SSL_REQUIRED_FIELDS = ["ssl_cert_path", "ssl_key_path"]
-    LOG_PATH = "/var/log/whiteboarding/"
+    LOG_PATH = "./"
 
     def __init__(self):
         if not os.path.exists(self.LOG_PATH) or not os.path.isdir(self.LOG_PATH):
@@ -71,10 +71,11 @@ class Whiteboarding(metaclass=Singleton):
     @staticmethod
     async def handle_client(client_socket):
         from events.masterevent import MasterEvent
+        print("client in")
 
         is_online = True
         while is_online:
-            client_msg = await json.loads(client_socket.recv())
+            client_msg = json.loads(await client_socket.recv())
             event = MasterEvent.deserialize(client_msg, client_socket)
             is_online = await event.exec()
 
@@ -89,13 +90,11 @@ class Whiteboarding(metaclass=Singleton):
         self.redis_connector.create_user(user_id, user)
 
     def remove_online_user(self, user_id):
-        with self._online_users_lock:
-            self._online_users.pop(user_id)
+        self._online_users.pop(user_id)
         self.redis_connector.remove_user(user_id)
 
     def get_client_socket(self, user_id):
-        with self._online_users_lock:
-            return self._online_users.get(user_id)
+        return self._online_users.get(user_id)
 
     def is_client_registered(self, user_id):
         return self.get_client_socket(user_id) is not None
