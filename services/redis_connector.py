@@ -208,9 +208,6 @@ class RedisConnector:
         """
         self.redis.delete(event_id)
 
-    def remove_user(self, user_id):
-        pass
-
     def get_event(self, event_id):
         """
         Get event details

@@ -91,7 +91,7 @@ class Whiteboarding(metaclass=Singleton):
     def remove_online_user(self, user_id):
         with self._online_users_lock:
             self._online_users.pop(user_id)
-        self.redis_connector.remove_user(user_id)
+        self.redis_connector.delete_user(user_id)
 
     def get_client_socket(self, user_id):
         with self._online_users_lock:
