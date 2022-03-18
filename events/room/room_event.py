@@ -15,7 +15,7 @@ class RoomEvent(MasterEvent):
 
     def to_dict(self) -> dict:
         parent = super().to_dict()
-        parent["type"] = self.type
+        parent["room_event_type"] = self.type
         parent["target_user_id"] = self.target_user_id
         return parent
 
