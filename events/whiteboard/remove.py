@@ -1,3 +1,4 @@
+from events.constants import EventType
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 
 
@@ -15,4 +16,5 @@ class RemoveWhiteboardEvent(WhiteboardEvent):
 
     def to_dict(self) -> dict:
         parent_dict = super().to_dict()
+        parent_dict["type"] = EventType.REMOVE
         return parent_dict

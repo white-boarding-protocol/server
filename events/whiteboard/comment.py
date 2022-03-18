@@ -7,7 +7,7 @@ class CommentWhiteboardEvent(WhiteboardEvent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.text = kwargs.get("text")
-        self.image_id = kwargs.get("image")
+        self.image_id = kwargs.get("image_id")
 
     async def handle(self):
         if self.action == EventAction.CREATE:
