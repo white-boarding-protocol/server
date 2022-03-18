@@ -1,4 +1,4 @@
-from events.constants import EventAction
+from events.constants import EventAction, EventType
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 
 
@@ -49,4 +49,5 @@ class CommentWhiteboardEvent(WhiteboardEvent):
         parent = super().to_dict()
         parent["text"] = self.text
         parent["image"] = self.image_id
+        parent['type'] = EventType.COMMENT
         return parent

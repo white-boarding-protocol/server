@@ -43,4 +43,5 @@ class ImageWhiteboardEvent(WhiteboardEvent):
     def to_dict(self) -> dict:
         parent = super().to_dict()
         parent["data"] = self.data
+        parent['type'] = EventType.IMAGE
         return parent

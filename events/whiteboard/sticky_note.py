@@ -1,4 +1,4 @@
-from events.constants import EventAction
+from events.constants import EventAction, EventType
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 
 
@@ -38,4 +38,5 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
     def to_dict(self) -> dict:
         parent_dict = super().to_dict()
         parent_dict["text"] = self.text
+        parent_dict['type'] = EventType.STICKY_NOTE
         return parent_dict
