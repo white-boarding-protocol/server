@@ -90,6 +90,7 @@ class RoomEvent(MasterEvent):
             {"status": 200, "message": "accepted", "events": room_events, "uuid": user_request_uuid}))
 
         await self.client_socket.send(json.dumps({"status": 200, "message": "user accepted", "uuid": self.uuid}))
+        await self.redistribute([x.get("id") for x in self.room_users])
 
     async def _decline_join(self):
         target_user_data = self.whiteboarding.redis_connector.get_user(self.target_user_id)
