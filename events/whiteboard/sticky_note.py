@@ -30,7 +30,7 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
         if self.room_id is None:
             self.error_msg = "room_id parameter is missing in the payload"
             return False
-        if self.text is None:
+        if self.action != EventAction.REMOVE and self.text is None:
             self.error_msg = "text parameter is missing in the payload"
             return False
         return True

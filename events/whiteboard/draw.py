@@ -34,19 +34,19 @@ class DrawWhiteboardEvent(WhiteboardEvent):
         if self.action in [EventAction.EDIT, EventAction.REMOVE] and self.event_id is None:
             self.error_msg = "event_id is missing in the payload"
             return False
-        if self.x_coordinate is None or self.y_coordinate is None:
+        if self.action != EventAction.REMOVE and (self.x_coordinate is None or self.y_coordinate is None):
             self.error_msg = "coordinate is missing in the payload"
             return False
         if self.room_id is None:
             self.error_msg = "room_id parameter is missing in the payload"
             return False
-        if self.color is None:
+        if self.action != EventAction.REMOVE and self.color is None:
             self.error_msg = "color parameter is missing in the payload"
             return False
-        if self.width is None:
+        if self.action != EventAction.REMOVE and self.width is None:
             self.error_msg = "width parameter is missing in the payload"
             return False
-        if self.tool is None:
+        if self.action != EventAction.REMOVE and self.tool is None:
             self.error_msg = "tool parameter is missing in the payload"
             return False
         return True
