@@ -1,4 +1,4 @@
-from events.constants import EventAction
+from events.constants import EventAction, EventType
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 
 
@@ -48,4 +48,5 @@ class ImageWhiteboardEvent(WhiteboardEvent):
         parent = super().to_dict()
         parent["data"] = self.data
         parent["comments"] = self.ls_comment_id
+        parent['type'] = EventType.IMAGE
         return parent

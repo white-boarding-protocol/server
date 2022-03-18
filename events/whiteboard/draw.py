@@ -1,4 +1,4 @@
-from events.constants import EventAction
+from events.constants import EventAction, EventType
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 
 
@@ -15,6 +15,7 @@ class DrawWhiteboardEvent(WhiteboardEvent):
         parent["color"] = self.color
         parent["tool"] = self.tool
         parent["width"] = self.width
+        parent['type'] = EventType.DRAW
         return parent
 
     async def handle(self):
