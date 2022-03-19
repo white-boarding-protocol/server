@@ -9,7 +9,7 @@ class ImageWhiteboardEvent(WhiteboardEvent):
 
     async def handle(self):
         if self.action == EventAction.CREATE:
-            self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
+            self.event_id = self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
         elif self.action == EventAction.REMOVE:
             # Remove all comments first
             comment_ids = [x.get("event_id") for x in self.whiteboarding.redis_connector.get_room_events(self.room_id)

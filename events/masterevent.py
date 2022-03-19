@@ -116,7 +116,7 @@ class MasterEvent:
             return UndoWhiteboardEvent(**data)
 
     async def redistribute(self, redistribute_to: list):
-        event_json = json.dumps({"status": 300, "message": self.to_dict()})
+        event_json = json.dumps({"status": 300, "event": self.to_dict()})
         for user_id in redistribute_to:
             user_socket = self.whiteboarding.get_client_socket(user_id)
             await user_socket.send(json.dumps(event_json))

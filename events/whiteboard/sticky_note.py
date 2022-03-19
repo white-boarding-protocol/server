@@ -10,9 +10,9 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
 
     async def handle(self):
         if self.action == EventAction.CREATE:
-            self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
+            self.event_id = self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
         elif self.action == EventAction.REMOVE:
-            self.whiteboarding.redis_connector.remove_event(self.id, self.event_id)
+            self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
         elif self.action == EventAction.EDIT:
             self.whiteboarding.redis_connector.edit_event(self.room_id, self.to_dict())
         await self.redistribute()
