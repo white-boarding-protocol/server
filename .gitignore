@@ -7,3 +7,4 @@ venv/
 cert/key.pem
 config.json
 *.log
+cert/new_certs/my_private_key.pem
