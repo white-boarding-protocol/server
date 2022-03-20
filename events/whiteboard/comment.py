@@ -17,7 +17,7 @@ class CommentWhiteboardEvent(WhiteboardEvent):
         elif self.action == EventAction.EDIT:
             self.whiteboarding.redis_connector.edit_event(self.event_id, self.to_dict())
         await self.client_socket.send({"status": 200, "event": self.to_dict(), "uuid": self.uuid})
-        await self.redistribute()
+        await self.redistribute_event()
 
     def is_valid(self) -> bool:
         if self.action is None:

@@ -22,6 +22,6 @@ class WhiteboardEvent(MasterEvent):
         parent["y_coordinate"] = self.y_coordinate
         return parent
 
-    async def redistribute(self, redistribute_to):
+    async def redistribute_event(self):
         return await super().redistribute(
             [user.get("id") for user in self.room_users if user.get("id") != self.user_id])
