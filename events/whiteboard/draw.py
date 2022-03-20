@@ -8,11 +8,13 @@ class DrawWhiteboardEvent(WhiteboardEvent):
         super().__init__(**kwargs)
         self.color = kwargs.get("color")
         self.tool = kwargs.get("tool")
+        self.coordinate_list = kwargs.get("coordinate_list")
         self.width = kwargs.get("width")
 
     def to_dict(self) -> dict:
         parent = super().to_dict()
         parent["color"] = self.color
+        parent["coordinate_list"] = self.coordinate_list
         parent["tool"] = self.tool
         parent["width"] = self.width
         parent['type'] = EventType.DRAW
