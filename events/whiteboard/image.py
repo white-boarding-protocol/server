@@ -18,7 +18,7 @@ class ImageWhiteboardEvent(WhiteboardEvent):
                 self.whiteboarding.redis_connector.remove_event(self.room_id, comment_id)
             # Remove image last
             self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
-        await self.redistribute()
+        await self.redistribute_event()
 
     def is_valid(self) -> bool:
         if self.action is None:

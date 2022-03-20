@@ -16,7 +16,7 @@ class CommentWhiteboardEvent(WhiteboardEvent):
             self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
         elif self.action == EventAction.EDIT:
             self.whiteboarding.redis_connector.edit_event(self.event_id, self.to_dict())
-        await self.redistribute()
+        await self.redistribute_event()
 
     def is_valid(self) -> bool:
         if self.action is None:
