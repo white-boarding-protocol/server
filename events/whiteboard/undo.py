@@ -9,6 +9,7 @@ class UndoWhiteboardEvent(WhiteboardEvent):
     async def handle(self):
         last_event_id = self.whiteboarding.redis_connector.get_last_event_id(self.room_id)
         self.whiteboarding.redis_connector.remove_event(last_event_id)
+        await self.client_socket.send({"status": 200, "event": self.to_dict(), "uuid": self.uuid})
         await self.redistribute_event()
 
     def is_valid(self) -> bool:

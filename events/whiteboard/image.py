@@ -18,6 +18,7 @@ class ImageWhiteboardEvent(WhiteboardEvent):
                 self.whiteboarding.redis_connector.remove_event(self.room_id, comment_id)
             # Remove image last
             self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
+        await self.client_socket.send({"status": 200, "event": self.to_dict(), "uuid": self.uuid})
         await self.redistribute_event()
 
     def is_valid(self) -> bool:
