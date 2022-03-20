@@ -23,4 +23,5 @@ class WhiteboardEvent(MasterEvent):
         return parent
 
     async def redistribute(self, redistribute_to):
-        return await super().redistribute([user.get("id") for user in self.room_users])
+        return await super().redistribute(
+            [user.get("id") for user in self.room_users if user.get("id") != self.user_id])
