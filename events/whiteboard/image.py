@@ -41,7 +41,7 @@ class ImageWhiteboardEvent(WhiteboardEvent):
         if self.room_id is None:
             self.error_msg = "room_id parameter is missing in the payload"
             return False
-        if self.action != EventAction.REMOVE and self.data is None:
+        if self.action == EventAction.CREATE and self.data is None:
             self.error_msg = "image data parameter is missing in the payload"
             return False
         if self.action == EventAction.CREATE and len(self.data) > self.SIZE_LIMIT:
