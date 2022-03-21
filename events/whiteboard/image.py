@@ -17,13 +17,10 @@ class ImageWhiteboardEvent(WhiteboardEvent):
         if self.action == EventAction.CREATE:
             self.event_id = self.whiteboarding.redis_connector.insert_event(self.room_id, self.to_dict())
         elif self.action == EventAction.REMOVE:
-            # Remove all comments first
-            comment_ids = [x.get("event_id") for x in self.whiteboarding.redis_connector.get_room_events(self.room_id)
-                           if x.get("type") == EventType.COMMENT and x.get("image_id") == self.event_id]
-            for comment_id in comment_ids:
-                self.whiteboarding.redis_connector.remove_event(self.room_id, comment_id)
             # Remove image last
             self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
+        elif self.action == EventAction.EDIT:
+            self.event_id = self.whiteboarding.redis_connector.edit_event(self.room_id, self.to_dict)
         await self.client_socket.send(json.dumps({"status": 200, "event": self.to_dict(), "uuid": self.uuid}))
         await self.redistribute_event()
 
