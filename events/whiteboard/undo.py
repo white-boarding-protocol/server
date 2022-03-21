@@ -10,12 +10,15 @@ class UndoWhiteboardEvent(WhiteboardEvent):
         self.last_event_id = None
 
     async def handle(self):
-        self.last_event_id = self.whiteboarding.redis_connector.get_last_event_id(self.room_id)
         self.whiteboarding.redis_connector.remove_event(self.room_id, self.last_event_id)
         await self.client_socket.send(json.dumps({"status": 200, "event": self.to_dict(), "uuid": self.uuid}))
         await self.redistribute_event()
 
     def is_valid(self) -> bool:
+        self.last_event_id = self.whiteboarding.redis_connector.get_last_event_id(self.room_id)
+        if self.last_event_id is None:
+            self.error_msg = "No more event to undo"
+            return False
         return True
 
     def to_dict(self) -> dict:
