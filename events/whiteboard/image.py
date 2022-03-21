@@ -20,7 +20,11 @@ class ImageWhiteboardEvent(WhiteboardEvent):
             # Remove image last
             self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
         elif self.action == EventAction.EDIT:
+            previous_event = self.whiteboarding.redis_connector.get_event(self.event_id)
+            self.data = previous_event["data"]
             self.event_id = self.whiteboarding.redis_connector.edit_event(self.event_id, self.to_dict())
+            self.data = None
+
         await self.client_socket.send(json.dumps({"status": 200, "event": self.to_dict(), "uuid": self.uuid}))
         await self.redistribute_event()
 
