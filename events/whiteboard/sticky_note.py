@@ -16,7 +16,7 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
         elif self.action == EventAction.REMOVE:
             self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
         elif self.action == EventAction.EDIT:
-            self.whiteboarding.redis_connector.edit_event(self.room_id, self.to_dict())
+            self.whiteboarding.redis_connector.edit_event(self.event_id, self.to_dict())
         await self.client_socket.send(json.dumps({"status": 200, "event": self.to_dict(), "uuid": self.uuid}))
         await self.redistribute_event()
 
