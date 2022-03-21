@@ -9,6 +9,7 @@ class EventType(IntEnum):
     COMMENT = 5
     UNDO = 6
     REMOVE = 7
+    HEARTBEAT = 8
 
 
 class EventAction(IntEnum):

@@ -114,6 +114,12 @@ class MasterEvent:
         elif event_type == EventType.UNDO:
             from events.whiteboard.undo import UndoWhiteboardEvent
             return UndoWhiteboardEvent(**data)
+        elif event_type == EventType.COMMENT:
+            from events.whiteboard.comment import CommentWhiteboardEvent
+            return CommentWhiteboardEvent(**data)
+        elif event_type == EventType.HEARTBEAT:
+            from events.heartbeat_event import HeartBeatEvent
+            return HeartBeatEvent(**data)
 
     async def redistribute(self, redistribute_to: list):
         event_json = json.dumps({"status": 300, "event": self.to_dict()})
