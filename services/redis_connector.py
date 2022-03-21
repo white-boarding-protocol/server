@@ -202,13 +202,14 @@ class RedisConnector:
         self._put(event_id, new_event)
 
     def remove_event(self, room_id, event_id):
-        # TODO remove event form room id as well
         """
         Remove event details and from the room
         :param room_id:
         :param event_id: event id
         :return: None
         """
+        event_ref = self._get_event_reference(room_id)
+        self.redis.lrem(event_ref, 0, event_id)
         self.redis.delete(event_id)
 
     def get_event(self, event_id):
