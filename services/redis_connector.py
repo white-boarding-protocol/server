@@ -249,7 +249,11 @@ class RedisConnector:
         :param room_id: room id
         :return: last event id
         """
-        return self.get_room_event_ids(room_id).pop()
+        lis = self.get_room_event_ids(room_id)
+        if lis:
+            return lis.pop()
+        return None
+
 
     def _get_event_reference(self, room_id):
         """
