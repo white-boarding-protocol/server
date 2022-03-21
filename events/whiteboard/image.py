@@ -22,7 +22,7 @@ class ImageWhiteboardEvent(WhiteboardEvent):
         elif self.action == EventAction.EDIT:
             previous_event = self.whiteboarding.redis_connector.get_event(self.event_id)
             self.data = previous_event["data"]
-            self.event_id = self.whiteboarding.redis_connector.edit_event(self.event_id, self.to_dict())
+            self.whiteboarding.redis_connector.edit_event(self.event_id, self.to_dict())
             self.data = None
 
         await self.client_socket.send(json.dumps({"status": 200, "event": self.to_dict(), "uuid": self.uuid}))
