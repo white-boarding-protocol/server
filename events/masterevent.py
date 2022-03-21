@@ -127,7 +127,7 @@ class MasterEvent:
         print("Redistributing...")
         for user_id in redistribute_to:
             user_socket = self.whiteboarding.get_client_socket(user_id)
-            await user_socket.send(json.dumps(event_json))
+            await user_socket.send(event_json)
 
     def to_dict(self) -> dict:
         return {
