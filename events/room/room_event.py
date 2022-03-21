@@ -68,7 +68,7 @@ class RoomEvent(MasterEvent):
 
         self.whiteboarding.redis_connector.remove_room(self.room_id)
         await self.client_socket.send(json.dumps({"status": 200, "message": "room ended", "uuid": self.uuid}))
-        await self.redistribute([x.get("id") for x in room_users])
+        await self.redistribute([x.get("id") for x in room_users if x.get("id") != self.user_id])
 
     async def _leave_room(self):
         self.whiteboarding.redis_connector.remove_user_from_room(self.room_id, self.user_id)
