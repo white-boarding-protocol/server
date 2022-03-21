@@ -28,9 +28,6 @@ class ImageWhiteboardEvent(WhiteboardEvent):
         if self.action is None:
             self.error_msg = "action is missing in the payload"
             return False
-        if self.action == EventAction.EDIT:
-            self.error_msg = "edit not allowed for image"
-            return False
         if self.action in [EventAction.EDIT, EventAction.REMOVE] and self.event_id is None:
             self.error_msg = "event_id is missing in the payload"
             return False
