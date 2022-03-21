@@ -8,6 +8,8 @@ class ImageWhiteboardEvent(WhiteboardEvent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.data = kwargs.get("data")  # Encoded data
+        self.height = kwargs.get("height")
+        self.width = kwargs.get("width")
 
     async def handle(self):
         if self.action == EventAction.CREATE:
@@ -47,5 +49,7 @@ class ImageWhiteboardEvent(WhiteboardEvent):
     def to_dict(self) -> dict:
         parent = super().to_dict()
         parent["data"] = self.data
+        parent['height'] = self.height
+        parent['width'] = self.width
         parent['type'] = EventType.IMAGE
         return parent
