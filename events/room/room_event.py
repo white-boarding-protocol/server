@@ -1,6 +1,6 @@
 import json
 
-from events.constants import UserStatus
+from events.constants import UserStatus, EventType
 from events.masterevent import MasterEvent
 from events.room.constants import RoomEventType
 
@@ -17,6 +17,7 @@ class RoomEvent(MasterEvent):
         parent = super().to_dict()
         parent["room_event_type"] = self.type
         parent["target_user_id"] = self.target_user_id
+        parent["type"] = EventType.ROOM
         return parent
 
     def has_perm(self) -> bool:

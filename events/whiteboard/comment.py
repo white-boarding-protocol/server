@@ -1,3 +1,5 @@
+import json
+
 from events.constants import EventAction, EventType
 from events.whiteboard.whiteboard_event import WhiteboardEvent
 
@@ -16,18 +18,17 @@ class CommentWhiteboardEvent(WhiteboardEvent):
             self.whiteboarding.redis_connector.remove_event(self.room_id, self.event_id)
         elif self.action == EventAction.EDIT:
             self.whiteboarding.redis_connector.edit_event(self.event_id, self.to_dict())
-        await self.client_socket.send({"status": 200, "event": self.to_dict(), "uuid": self.uuid})
+        await self.client_socket.send(json.dumps({"status": 200, "event": self.to_dict(), "uuid": self.uuid}))
         await self.redistribute_event()
 
     def is_valid(self) -> bool:
+        # TODO check if the corresponding image exists
+
         if self.action is None:
             self.error_msg = "action is missing in the payload"
             return False
         if self.action in [EventAction.EDIT, EventAction.REMOVE] and self.event_id is None:
             self.error_msg = "event_id is missing in the payload"
-            return False
-        if self.action != EventAction.REMOVE and (self.x_coordinate is None or self.y_coordinate is None):
-            self.error_msg = "coordinate is missing in the payload"
             return False
         if self.room_id is None:
             self.error_msg = "room_id parameter is missing in the payload"
