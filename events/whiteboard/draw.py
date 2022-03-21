@@ -39,7 +39,7 @@ class DrawWhiteboardEvent(WhiteboardEvent):
         if self.action in [EventAction.EDIT, EventAction.REMOVE] and self.event_id is None:
             self.error_msg = "event_id is missing in the payload"
             return False
-        if self.action != EventAction.REMOVE and (self.coordinates is None):
+        if self.action != EventAction.REMOVE and self.coordinates is None:
             self.error_msg = "coordinates is missing in the payload"
             return False
         if self.room_id is None:

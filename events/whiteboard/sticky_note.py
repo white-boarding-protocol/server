@@ -27,7 +27,7 @@ class StickyNoteWhiteboardEvent(WhiteboardEvent):
         if self.action in [EventAction.EDIT, EventAction.REMOVE] and self.event_id is None:
             self.error_msg = "event_id is missing in the payload"
             return False
-        if self.x_coordinate is None or self.y_coordinate is None:
+        if self.action != EventAction.REMOVE and (self.x_coordinate is None or self.y_coordinate is None):
             self.error_msg = "coordinate is missing in the payload"
             return False
         if self.room_id is None:
