@@ -22,8 +22,6 @@ class CommentWhiteboardEvent(WhiteboardEvent):
         await self.redistribute_event()
 
     def is_valid(self) -> bool:
-        # TODO check if the corresponding image exists
-
         if self.action is None:
             self.error_msg = "action is missing in the payload"
             return False
@@ -38,6 +36,9 @@ class CommentWhiteboardEvent(WhiteboardEvent):
             return False
         if self.action != EventAction.REMOVE and self.text is None:
             self.error_msg = "Comment text parameter is missing in the payload"
+            return False
+        if self.image_id is not None and self.whiteboarding.redis_connector.get_event(self.image_id) is None:
+            self.error_msg = "image id does not exist"
             return False
         return True
 
