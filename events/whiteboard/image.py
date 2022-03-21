@@ -5,6 +5,8 @@ from events.whiteboard.whiteboard_event import WhiteboardEvent
 
 
 class ImageWhiteboardEvent(WhiteboardEvent):
+    SIZE_LIMIT = 7000000
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.data = kwargs.get("data")  # Encoded data
@@ -43,6 +45,9 @@ class ImageWhiteboardEvent(WhiteboardEvent):
             return False
         if self.action != EventAction.REMOVE and self.data is None:
             self.error_msg = "image data parameter is missing in the payload"
+            return False
+        if self.action == EventAction.CREATE and len(self.data) > self.SIZE_LIMIT:
+            self.error_msg = f"image is more than {self.SIZE_LIMIT} bytes"
             return False
         return True
 
